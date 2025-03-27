@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+body {
+
+  scroll-behavior: smooth;
+
+}
+.loader {
+  height: 30px;
+  width: 10px;
+  border-radius: 4px;
+  color: #fff;
+  background: currentColor;
+  position: relative;
+  animation: ht 1s ease-in infinite alternate;
+  box-shadow: 15px 0 0 -1px , -15px 0 0 -1px ,
+              30px 0 0 -2px , -30px 0 0 -2px,
+              45px 0 0 -3px , -45px 0 0 -3px;
+}
+
+@keyframes ht {
+  100% { height: 0px }
+}
+
+
+.almarai-light {
+  font-family: "Almarai", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.almarai-regular {
+  font-family: "Almarai", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.almarai-bold {
+  font-family: "Almarai", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.almarai-extrabold {
+  font-family: "Almarai", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
