@@ -1,20 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { PhoneDrawerProps } from "../../../Types/ProjectTypes";
-import { BiChevronDown, BiChevronRight, BiGlobe, BiSun } from "react-icons/bi";
+import { BiChevronDown, BiChevronRight } from "react-icons/bi";
 import { AnimatePresence, motion } from "framer-motion";
-import { BsMoon } from "react-icons/bs";
 import { PCHeaderContent } from "../../../Context/Context";
 import { CgClose } from "react-icons/cg";
+import Theme from "./Theme";
+import LanguageComponent from "./language";
+import Currency from "./Currency";
 
 function PhoneDrawer({ isDrawerOpen, setisDrawerOpen }: PhoneDrawerProps) {
   const [openSectionId, setOpenSectionId] = useState<number | null>(null);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [language, setLanguage] = useState<string>("EN");
-  const [currency, setCurrency] = useState<string>("USD");
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
 
   const toggleSection = (id: number) => {
     setOpenSectionId(openSectionId === id ? null : id);
@@ -93,33 +88,9 @@ function PhoneDrawer({ isDrawerOpen, setisDrawerOpen }: PhoneDrawerProps) {
 
             {/* Settings Section */}
             <div className="mt-6 space-y-4">
-              <div className="flex justify-between items-center">
-                <span>Theme</span>
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center gap-2"
-                >
-                  {theme === "light" ? (
-                    <BsMoon size={20} />
-                  ) : (
-                    <BiSun size={20} />
-                  )}
-                  {theme === "light" ? "Dark" : "Light"}
-                </button>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span>Language</span>
-                <button className="flex items-center gap-2">
-                  <BiGlobe size={20} />
-                  {language}
-                </button>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span>Currency</span>
-                <button className="flex items-center gap-2">{currency}</button>
-              </div>
+              <Theme />
+              <LanguageComponent />
+              <Currency />
             </div>
           </div>
         </motion.div>
