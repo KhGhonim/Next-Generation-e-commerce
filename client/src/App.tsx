@@ -23,7 +23,7 @@ function App() {
         {isLoading ? (
           <WebsiteLoading key="loading" />
         ) : (
-          <div className="w-full h-full">
+          <div key="content">
             <Header />
             <Outlet />
           </div>

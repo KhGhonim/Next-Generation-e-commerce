@@ -3,10 +3,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import MongoDB from "./API/Config/MongoDB.js";
+import AuthRoutes from "./API/Routes/authRoutes.js"
 
 dotenv.config();
 const app = express();
 
+//Middlewares
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -17,10 +19,16 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+
+//Routes
 app.get("/", (req, res) => {
   res.send("Welcome to Khaled Ghonim Gateway Server");
 });
 
+app.use("/api", AuthRoutes)
+
+
+// Server Starter 
 const startServer = async () => {
   try {
     await MongoDB();

@@ -4,7 +4,6 @@ import { avatars } from "../../../Context/Context";
 
 function HeroSection() {
   const [hero, sethero] = useState(true);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       sethero(!hero);
@@ -23,12 +22,13 @@ function HeroSection() {
       }}
       className="absolute inset-5 z-10 overflow-hidden rounded-4xl bg-gradient-to-t from-gray-200 to-rose-100"
     >
-      <div className="absolute top-1/4 lg:flex lg:flex-col lg:-translate-y-1/2 lg:left-1/2 left-0 right-0 lg:-translate-x-1/2 lg:bottom-1/2">
+      <div className="absolute top-1/4 lg:flex lg:flex-col lg:-translate-y-1/3 lg:left-1/2 left-0 right-0 lg:-translate-x-1/2 lg:bottom-1/2">
         <motion.div
           initial={{ opacity: 0, y: -100 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -100 }}
-          transition={{ duration: 0.5, delay: 1, ease: "easeInOut" }} className=" text-center w-full"
+          transition={{ duration: 0.5, delay: 1, ease: "easeInOut" }}
+          className=" text-center w-full"
         >
           <h1 className="text-3xl md:text-5xl  px-2 lg:text-7xl font-bold almarai-bold">
             Dress Up Every Day
@@ -39,21 +39,33 @@ function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
           transition={{ duration: 0.5, delay: 1.2, ease: "easeInOut" }}
-          className="flex gap-5 z-30 mt-10 justify-center items-baseline"
+          className="flex gap-5 z-30 mt-10 justify-center items-center"
         >
-          <button className="bg-gray-900   almarai-regular hover:bg-gray-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl">
+          <button className="bg-gray-900 z-50  almarai-regular hover:bg-amber-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl">
             Shop Now
           </button>
-          <button className="bg-gradient-to-tr  almarai-regular from-zinc-200 z-50 to-gray-200 hover:bg-gray-300 transition-all duration-300 ease-in-out cursor-pointer text-black px-5 py-2 rounded-4xl">
+          <button className="bg-zinc-500 z-50  almarai-regular hover:bg-amber-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl">
             Explore now
           </button>
         </motion.div>
       </div>
-      <img
-        className={`h-auto w-auto absolute  object-cover ${
+      <motion.img
+        initial={{
+          scale: 1,
+          opacity: 0,
+        }}
+        animate={{
+          scale: 0.8,
+          opacity: 1,
+          transition: {
+            duration: 0.5,
+            ease: "easeInOut",
+          },
+        }}
+        className={`absolute object-cover ${
           hero
             ? "top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/3"
-            : "top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+            : "top-11/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
         } transition-all duration-1000 ease-in-out`}
         src="/src/assets/Herosection.svg"
         alt=""
