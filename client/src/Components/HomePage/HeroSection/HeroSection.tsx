@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { avatars } from "../../../Context/Context";
+import Herosection from "../../../assets/Herosection.svg";
+import VEXOVideo from "../../../assets/VEXO - Futuristic E-commerce Website by Muhammad Shofiuddoula for Zeyox Studio on Dribbble.mp4";
 
 function HeroSection() {
   const [hero, sethero] = useState(true);
@@ -67,8 +69,8 @@ function HeroSection() {
             ? "top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/3"
             : "top-11/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
         } transition-all duration-1000 ease-in-out`}
-        src="/src/assets/Herosection.svg"
-        alt=""
+        src={Herosection}
+        alt="Hero Section"
       />
 
       <motion.div
@@ -83,7 +85,7 @@ function HeroSection() {
           loop
           muted
           className="w-full rounded-4xl h-full object-cover"
-          src="/src/assets/VEXO - Futuristic E-commerce Website by Muhammad Shofiuddoula for Zeyox Studio on Dribbble.mp4"
+          src={VEXOVideo}
         ></video>
       </motion.div>
       <motion.div
