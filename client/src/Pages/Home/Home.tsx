@@ -1,4 +1,5 @@
 import HeroSection from "../../Components/HomePage/HeroSection/HeroSection";
+import Performance from "../../Components/HomePage/Performance/Performance";
 import WorkOut from "../../Components/HomePage/WorkOut/WorkOut";
 
 function Home() {
@@ -6,6 +7,7 @@ function Home() {
     <div>
       <HeroSection />
       <WorkOut />
+      <Performance />
     </div>
   );
 }
