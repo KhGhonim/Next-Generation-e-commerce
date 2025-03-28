@@ -18,12 +18,12 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <div className="w-full h-screen relative bg-zinc-100">
+    <div >
       <AnimatePresence>
         {isLoading ? (
           <WebsiteLoading key="loading" />
         ) : (
-          <div key="content">
+          <div key="content" className="w-full h-screen relative scroll-smooth ">
             <Header />
             <Outlet />
           </div>

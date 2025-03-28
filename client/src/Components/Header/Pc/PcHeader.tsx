@@ -4,12 +4,19 @@ import { Link } from "react-router-dom";
 import { PCHeaderContent } from "../../../Context/Context";
 import { useState } from "react";
 import { BiChevronDown } from "react-icons/bi";
+import { PcHeaderProps } from "../../../Types/ProjectTypes";
 
-function PcHeader() {
+function PcHeader({ IsScrolled }: PcHeaderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <nav className="hidden fixed top-0 left-0 right-0 z-50 lg:flex justify-between items-center px-8 py-6 text-black">
+    <nav
+      className={`hidden fixed ${
+        IsScrolled
+          ? "bg-gray-900 text-white px-6 py-4 rounded-b-2xl"
+          : "bg-transparent px-8 py-6"
+      } transition-all duration-150 ease-in-out top-0 left-0 right-0 z-50 lg:flex justify-between items-center  text-black`}
+    >
       <motion.div
         initial={{ opacity: 0, x: -200 }}
         animate={{ opacity: 1, x: 0 }}
@@ -18,7 +25,7 @@ function PcHeader() {
         className="flex space-x-6 pt-5"
       >
         <Link
-          className="hover:text-gray-600 transition-colors almarai-light"
+          className="hover:text-gray-600 transition-colors stick-regular"
           to={""}
         >
           SHOP
@@ -31,7 +38,7 @@ function PcHeader() {
             onMouseLeave={() => setActiveIndex(0)}
           >
             <Link
-              className="hover:text-gray-600 transition-colors almarai-light"
+              className="hover:text-gray-600 transition-colors stick-regular"
               to={item.link}
             >
               {item.title}{" "}
@@ -48,7 +55,7 @@ function PcHeader() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="absolute top-full left-0 w-64 bg-white shadow-xl rounded-lg overflow-hidden border border-gray-100 z-50"
+                  className="absolute top-full left-0 w-60 bg-white shadow-xl rounded-lg overflow-hidden border border-gray-100 z-50"
                 >
                   <div className="py-2">
                     {item.items.map((subItem) => (
@@ -57,7 +64,7 @@ function PcHeader() {
                         to={subItem.link}
                         className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-black transition-colors duration-200 text-sm"
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between stick-regular">
                           <span>{subItem.title}</span>
                         </div>
                       </Link>
@@ -75,13 +82,21 @@ function PcHeader() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -100 }}
         transition={{ duration: 0.5, delay: 0.5, ease: "easeInOut" }}
-        className="absolute left-1/2 transform top-0 -translate-x-1/2 text-3xl font-bold text-black"
+        className="absolute left-1/2  transform top-0 -translate-x-1/2  font-bold text-black"
       >
-        <img
-          src="/vexo (1).svg"
-          className="w-40 md:w-44 lg:w-52 object-cover"
-          alt="website logo"
-        />
+        {IsScrolled ? (
+          <img
+            src="/VEXO.svg"
+            className="w-full h-24 object-cover"
+            alt="website logo"
+          />
+        ) : (
+          <img
+            src="/vexo (1).svg"
+            className="w-full h-full object-cover"
+            alt="website logo"
+          />
+        )}
       </motion.div>
       <motion.div
         initial={{ opacity: 0, x: 200 }}
@@ -91,22 +106,34 @@ function PcHeader() {
         className="flex space-x-6 items-center pt-5"
       >
         <Link
-          className="hover:text-gray-600 transition-colors almarai-light "
+          className="hover:text-gray-600 transition-colors stick-regular "
           to={""}
         >
           SEASONAL
         </Link>
         <Link
-          className="hover:text-gray-600 transition-colors almarai-light "
+          className="hover:text-gray-600 transition-colors stick-regular "
           to={""}
         >
           ACCESSORIES
         </Link>
         <div className="flex space-x-4">
-          <button className="bg-black cursor-pointer text-white px-5 py-2 rounded-full hover:bg-amber-800 transition-colors almarai-light ">
+          <button
+            className={`${
+              IsScrolled
+                ? "bg-white text-black hover:bg-zinc-300"
+                : "bg-black text-white hover:bg-amber-800"
+            } cursor-pointer  px-5 py-2 rounded-full  transition-colors stick-regular`}
+          >
             SIGN UP
           </button>
-          <button className="bg-black cursor-pointer text-white px-5 p-2 rounded-full hover:bg-amber-800 transition-colors almarai-light ">
+          <button
+            className={`${
+              IsScrolled
+                ? "bg-white text-black hover:bg-zinc-300"
+                : "bg-black text-white hover:bg-amber-800"
+            } cursor-pointer px-5 p-2 rounded-full  transition-colors stick-regular`}
+          >
             <PiShoppingCartFill size={20} />
           </button>
         </div>

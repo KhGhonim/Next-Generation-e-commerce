@@ -57,7 +57,7 @@ function PhoneDrawer({ isDrawerOpen, setisDrawerOpen }: PhoneDrawerProps) {
               <div key={section.id} className="mb-4">
                 <button
                   onClick={() => toggleSection(section.id)}
-                  className="w-full flex justify-between items-center py-3 border-b"
+                  className="w-full flex justify-between items-center py-3 border-b stick-regular"
                 >
                   <span className="font-semibold">{section.title}</span>
                   {openSectionId === section.id ? (
@@ -76,7 +76,7 @@ function PhoneDrawer({ isDrawerOpen, setisDrawerOpen }: PhoneDrawerProps) {
                     {section.items.map((item) => (
                       <button
                         key={item.id}
-                        className="w-full text-left py-2 hover:bg-gray-100 rounded"
+                        className="w-full text-left py-2 hover:bg-gray-100 rounded stick-regular"
                       >
                         {item.title}
                       </button>
@@ -87,7 +87,7 @@ function PhoneDrawer({ isDrawerOpen, setisDrawerOpen }: PhoneDrawerProps) {
             ))}
 
             {/* Settings Section */}
-            <div className="mt-6 space-y-4">
+            <div className="mt-6 space-y-4 stick-regular">
               <Theme />
               <LanguageComponent />
               <Currency />

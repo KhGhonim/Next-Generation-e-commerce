@@ -1,11 +1,28 @@
+import { useEffect, useState } from "react";
 import PcHeader from "./Pc/PcHeader";
 import PhoneHeader from "./Phone/PhoneHeader";
 
 function Header() {
+  const [IsScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   return (
     <>
-      <PcHeader />
-      <PhoneHeader />
+      <PcHeader IsScrolled={IsScrolled} />
+      <PhoneHeader IsScrolled={IsScrolled} />
     </>
   );
 }
