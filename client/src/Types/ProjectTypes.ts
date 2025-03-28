@@ -10,3 +10,13 @@ export interface PcHeaderProps {
 export interface PhoneHeaderProps {
   IsScrolled: boolean;
 }
+
+export interface CardProps {
+  cards: {
+    id: number;
+    title: string;
+    link: string;
+    image: string;
+    price: number;
+  }[];
+}
