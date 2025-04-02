@@ -1,4 +1,5 @@
 import CardsGrid from "../../Components/HomePage/CardsGrid/CardsGrid";
+import FloatingWords from "../../Components/HomePage/FloatingWords/FloatingWords";
 import HeroSection from "../../Components/HomePage/HeroSection/HeroSection";
 import LevelUP from "../../Components/HomePage/LevelUP/LevelUP";
 import Performance from "../../Components/HomePage/Performance/Performance";
@@ -12,6 +13,7 @@ function Home() {
       <Performance />
       <LevelUP />
       <CardsGrid />
+      <FloatingWords />
     </div>
   );
 }

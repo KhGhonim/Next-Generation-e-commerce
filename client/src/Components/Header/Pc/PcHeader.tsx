@@ -5,6 +5,7 @@ import { PCHeaderContent } from "../../../Context/Context";
 import { useState } from "react";
 import { BiChevronDown } from "react-icons/bi";
 import { PcHeaderProps } from "../../../Types/ProjectTypes";
+import { FaGlobe, FaUserAlt } from "react-icons/fa";
 
 function PcHeader({ IsScrolled }: PcHeaderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -25,7 +26,7 @@ function PcHeader({ IsScrolled }: PcHeaderProps) {
         className="flex space-x-6 pt-5"
       >
         <Link
-          className="hover:text-gray-600 transition-colors stick-regular"
+          className="hover:text-gray-600 ml-1.5 transition-colors stick-regular"
           to={""}
         >
           SHOP
@@ -76,7 +77,6 @@ function PcHeader({ IsScrolled }: PcHeaderProps) {
           </div>
         ))}
       </motion.div>
-      {/* Website Title */}
       <motion.div
         initial={{ opacity: 0, y: -100 }}
         animate={{ opacity: 1, y: 0 }}
@@ -105,18 +105,6 @@ function PcHeader({ IsScrolled }: PcHeaderProps) {
         transition={{ duration: 0.5, delay: 0.5, ease: "easeInOut" }}
         className="flex space-x-6 items-center pt-5"
       >
-        <Link
-          className="hover:text-gray-600 transition-colors stick-regular "
-          to={""}
-        >
-          SEASONAL
-        </Link>
-        <Link
-          className="hover:text-gray-600 transition-colors stick-regular "
-          to={""}
-        >
-          ACCESSORIES
-        </Link>
         <div className="flex space-x-4">
           <button
             className={`${
@@ -125,7 +113,7 @@ function PcHeader({ IsScrolled }: PcHeaderProps) {
                 : "bg-black text-white hover:bg-amber-800"
             } cursor-pointer  px-5 py-2 rounded-full  transition-colors stick-regular`}
           >
-            SIGN UP
+            <FaUserAlt />
           </button>
           <button
             className={`${
@@ -135,6 +123,26 @@ function PcHeader({ IsScrolled }: PcHeaderProps) {
             } cursor-pointer px-5 p-2 rounded-full  transition-colors stick-regular`}
           >
             <PiShoppingCartFill size={20} />
+          </button>
+          <button
+            className={`${
+              IsScrolled
+                ? "bg-white text-black hover:bg-zinc-300"
+                : "bg-black text-white hover:bg-amber-800"
+            } cursor-pointer px-5 p-2 rounded-full  transition-colors stick-regular`}
+          >
+            <FaGlobe />
+          </button>
+        </div>
+        <div className="flex space-x-4">
+          <button
+            className={`${
+              IsScrolled
+                ? "bg-white text-black hover:bg-zinc-300"
+                : "bg-black text-white hover:bg-amber-800"
+            } cursor-pointer  px-5 py-2 rounded-full  transition-colors stick-regular`}
+          >
+            SIGN UP
           </button>
         </div>
       </motion.div>

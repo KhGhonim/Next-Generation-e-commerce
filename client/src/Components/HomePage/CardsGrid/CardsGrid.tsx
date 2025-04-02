@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Cards from "../Cards/Cards";
 import { PhotosAndTitle } from "../../../Context/Context";
 import { MdOutlineArrowOutward } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 function CardsGrid() {
   const containerVariants = {
@@ -9,8 +10,8 @@ function CardsGrid() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.3, 
-        delayChildren: 0.2, 
+        staggerChildren: 0.3,
+        delayChildren: 0.2,
       },
     },
   };
@@ -60,14 +61,14 @@ function CardsGrid() {
           <Cards cards={PhotosAndTitle} />
         </motion.div>
 
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          className="w-full h-32 flex gap-1.5 justify-center items-center"
-        >
-          <button className="bg-black cursor-pointer text-white px-10 py-3 rounded-3xl">
+        <motion.div className="w-full h-32 flex gap-1.5 group justify-center items-center">
+          <Link
+            className="bg-black cursor-pointer text-white px-10 py-3 rounded-3xl font-bold stick-regular"
+            to={"/shop"}
+          >
             See All Brands
-          </button>
-          <MdOutlineArrowOutward className="bg-black cursor-pointer !text-3xl text-white p-1.5  rounded-3xl" />
+          </Link>
+          <MdOutlineArrowOutward className="bg-black cursor-pointer !text-3xl group-hover:animate-bounce text-white p-1.5  rounded-3xl" />
         </motion.div>
       </section>
     </AnimatePresence>

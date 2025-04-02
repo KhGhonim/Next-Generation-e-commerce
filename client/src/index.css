@@ -44,3 +44,32 @@ html {
   font-weight: 700;
   font-style: normal;
 }
+
+.fromLeftToRight{
+  animation: infinite 20s linear 0s normal none running fromLeftToRight;
+  mix-blend-mode: difference; 
+  transition: filter 0.3s ease-in-out;
+}
+
+@keyframes fromLeftToRight {
+  0% {
+    transform: translateX(150%);
+  }
+  100% {
+    transform: translateX(-200%);
+  }
+}
+.fromRightToLeft{
+  animation: infinite 20s linear 0s normal none running fromRightToLeft;
+  mix-blend-mode: difference; 
+  transition: filter 0.3s ease-in-out;
+}
+
+@keyframes fromRightToLeft {
+  0% {
+    transform: translateX(-150%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}

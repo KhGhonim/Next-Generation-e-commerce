@@ -18,7 +18,7 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <div >
+    < >
       <AnimatePresence>
         {isLoading ? (
           <WebsiteLoading key="loading" />
@@ -29,7 +29,7 @@ function App() {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
 
