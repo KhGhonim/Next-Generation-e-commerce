@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Performance1 from "../../../assets/Performance1.avif";
 import Performance2 from "../../../assets/Performance2.avif";
+import { Link } from "react-router-dom";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -59,8 +60,8 @@ function Performance() {
           </div>
         </motion.div>
 
-        <div className="relative lg:pt-3 flex gap-5 lg:gap-10 flex-col lg:flex-row w-full h-full">
-          <div className="w-full lg:w-1/2 rounded-3xl h-72 lg:h-full relative overflow-hidden">
+        <div className="relative lg:pt-3 flex gap-2.5 lg:gap-7 flex-col lg:flex-row w-full h-full">
+          <div className="w-full lg:w-1/2 rounded-3xl h-72 lg:min-h-5/6 relative overflow-hidden">
             <motion.img
               initial={{ opacity: 0, scale: 0.8, y: 100 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -71,15 +72,18 @@ function Performance() {
               alt=""
             />
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/4 w-full h-full">
-              <h1 className="stick-bold text-base lg:text-5xl w-4/6 px-5">
+              <h1 className="stick-bold text-base lg:text-5xl w-4/6 px-5 mb-5">
                 Top Dress up Gear for Peak Performance
               </h1>
-              <button className="stick-bold text-xs p-2 px-6 mx-10 mt-3.5 rounded-full bg-transparent border cursor-pointer hover:bg-gray-50 transition-colors duration-300 ease-in-out stick-regular">
+              <Link
+                className="stick-bold text-xs p-2 px-6 mx-10  rounded-full bg-transparent border cursor-pointer hover:bg-gray-50 transition-colors duration-300 ease-in-out stick-regular"
+                to={"/shop"}
+              >
                 Shop Now
-              </button>
+              </Link>
             </div>
           </div>
-          <div className="w-full lg:w-1/2 rounded-3xl h-72 lg:h-full relative">
+          <div className="w-full lg:w-1/2 rounded-3xl h-72 lg:min-h-5/6 relative">
             <motion.img
               initial={{ opacity: 0, scale: 1.5, y: 100 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -90,12 +94,15 @@ function Performance() {
               alt=""
             />
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/12 w-full h-full">
-              <h1 className="stick-bold text-base lg:text-5xl w-4/6 px-5">
+              <h1 className="stick-bold text-base lg:text-5xl mb-5 w-4/6 px-5">
                 Top Dress up Gear for Peak Performance
               </h1>
-              <button className="stick-bold text-xs p-2 px-6 mx-10 mt-3.5 rounded-full bg-transparent border cursor-pointer hover:bg-gray-50 transition-colors duration-300 ease-in-out stick-regular">
+              <Link
+                className="stick-bold text-xs p-2 px-6 mx-10 mt-10 rounded-full bg-transparent border cursor-pointer hover:bg-gray-50 transition-colors duration-300 ease-in-out stick-regular"
+                to={"/shop"}
+              >
                 Shop Now
-              </button>
+              </Link>
             </div>
           </div>
         </div>

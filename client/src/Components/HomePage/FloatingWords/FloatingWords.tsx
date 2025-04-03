@@ -30,13 +30,13 @@ function FloatingWords() {
         </AnimatePresence>
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-zinc-900/20 to-zinc-900/0" />
       </div>
-      <div className="absolute top-1/4 max-lg:left-1/3 lg:left-1/2  w-full h-full  pointer-events-none">
+      <div className="absolute top-1/5 max-lg:left-1/3 lg:left-1/2  w-full h-full  pointer-events-none">
         <h1 className="text-3xl max-lg:rotate-90  lg:text-9xl font-bold stick-bold text-zinc-300 fromLeftToRight">
           {" "}
           Dress Up As You Please
         </h1>
       </div>
-      <div className="absolute top-8/12 max-lg:right-1/3 lg:right-1/2  w-full h-full pointer-events-none">
+      <div className="absolute top-9/12 max-lg:right-1/3 lg:right-1/2  w-full h-full pointer-events-none">
         <h1 className="text-3xl lg:text-8xl max-lg:rotate-90 font-bold stick-bold text-zinc-300 fromRightToLeft">
           {" "}
           Keep It Simple And Elegant

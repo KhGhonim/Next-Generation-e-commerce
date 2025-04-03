@@ -18,7 +18,7 @@ function CardsGrid() {
 
   return (
     <AnimatePresence mode="wait">
-      <section className="w-full pt-20 lg:pt-28  h-full SectionS   !overflow-hidden relative ">
+      <section className="w-full pt-20 lg:pt-28  SectionS   !overflow-hidden relative ">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -50,7 +50,6 @@ function CardsGrid() {
             All Brands
           </motion.h1>
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, x: 100, y: 100 }}
           whileInView={{ opacity: 1, x: 0, y: 0 }}

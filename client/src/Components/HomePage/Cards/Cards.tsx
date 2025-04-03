@@ -3,6 +3,7 @@ import { CardProps } from "../../../Types/ProjectTypes";
 import { useState } from "react";
 import { IoHeartSharp } from "react-icons/io5";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import { Link } from "react-router-dom";
 function Cards({ cards }: CardProps) {
   const [likedCards, setLikedCards] = useState(new Set());
 
@@ -40,7 +41,10 @@ function Cards({ cards }: CardProps) {
             )}
           </div>
 
-          <div className="absolute bottom-5 left-5 cursor-pointer group right-5 rounded-4xl bg-zinc-200 transition-all hover:bg-zinc-300 duration-300 ease-in-out h-12 flex justify-between items-center  px-4">
+          <Link
+            to={`/product/${card.id}`}
+            className="absolute bottom-5 left-5 cursor-pointer group right-5 rounded-4xl bg-zinc-200 transition-all hover:bg-zinc-300 duration-300 ease-in-out h-12 flex justify-between items-center  px-4"
+          >
             <div className="flex gap-1.5 flex-col ">
               <p className="font-bold text-sm text-black">{card.title}</p>
               <p className="text-xs text-black">{card.price}</p>
@@ -49,7 +53,7 @@ function Cards({ cards }: CardProps) {
               size={20}
               className="text-black group-hover:translate-x-1 transition-all duration-300 ease-in-out"
             />
-          </div>
+          </Link>
         </div>
       ))}
     </>

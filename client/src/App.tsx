@@ -18,18 +18,19 @@ function App() {
   }, [location.pathname]);
 
   return (
-    < >
-      <AnimatePresence>
-        {isLoading ? (
-          <WebsiteLoading key="loading" />
-        ) : (
-          <div key="content" className="w-full h-screen relative scroll-smooth ">
-            <Header />
-            <Outlet />
-          </div>
-        )}
-      </AnimatePresence>
-    </>
+    <AnimatePresence>
+      {isLoading ? (
+        <WebsiteLoading isLoading={isLoading} key="loading" />
+      ) : (
+        <div
+          key="content"
+          className="w-full h-screen relative scroll-smooth bg-zinc-50"
+        >
+          <Header />
+          <Outlet />
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
 

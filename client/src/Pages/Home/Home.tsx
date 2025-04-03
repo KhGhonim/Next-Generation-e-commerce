@@ -7,14 +7,14 @@ import WorkOut from "../../Components/HomePage/WorkOut/WorkOut";
 
 function Home() {
   return (
-    <div>
+    <>
       <HeroSection />
       <WorkOut />
       <Performance />
       <LevelUP />
       <CardsGrid />
       <FloatingWords />
-    </div>
+    </>
   );
 }
 

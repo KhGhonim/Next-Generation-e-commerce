@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { PiShoppingCartFill } from "react-icons/pi";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { PCHeaderContent } from "../../../Context/Context";
 import { useState } from "react";
 import { BiChevronDown } from "react-icons/bi";
@@ -9,13 +9,16 @@ import { FaGlobe, FaUserAlt } from "react-icons/fa";
 
 function PcHeader({ IsScrolled }: PcHeaderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const Location = useLocation().pathname;
 
   return (
     <nav
       className={`hidden fixed ${
-        IsScrolled
-          ? "bg-gray-900 text-white px-6 py-4 rounded-b-2xl"
-          : "bg-transparent px-8 py-6"
+        Location === "/"
+          ? IsScrolled
+            ? "bg-gray-900 text-white px-6 py-4 rounded-b-2xl"
+            : "bg-transparent px-8 py-6"
+          : "bg-gray-900 text-white px-6 py-4 rounded-b-2xl"
       } transition-all duration-150 ease-in-out top-0 left-0 right-0 z-50 lg:flex justify-between items-center  text-black`}
     >
       <motion.div
@@ -84,18 +87,32 @@ function PcHeader({ IsScrolled }: PcHeaderProps) {
         transition={{ duration: 0.5, delay: 0.5, ease: "easeInOut" }}
         className="absolute left-1/2  transform top-0 -translate-x-1/2  font-bold text-black"
       >
-        {IsScrolled ? (
-          <img
-            src="/VEXO.svg"
-            className="w-full h-24 object-cover"
-            alt="website logo"
-          />
+        {Location === "/" ? (
+          IsScrolled ? (
+            <Link to={"/"}>
+              <img
+                src="/VEXO.svg"
+                className="w-full h-24 object-cover"
+                alt="website logo"
+              />
+            </Link>
+          ) : (
+            <Link to={"/"}>
+              <img
+                src="/vexo (1).svg"
+                className="w-full h-full object-cover"
+                alt="website logo"
+              />
+            </Link>
+          )
         ) : (
-          <img
-            src="/vexo (1).svg"
-            className="w-full h-full object-cover"
-            alt="website logo"
-          />
+          <Link to={"/"}>
+            <img
+              src="/VEXO.svg"
+              className="w-full h-24 object-cover"
+              alt="website logo"
+            />
+          </Link>
         )}
       </motion.div>
       <motion.div
@@ -108,27 +125,33 @@ function PcHeader({ IsScrolled }: PcHeaderProps) {
         <div className="flex space-x-4">
           <button
             className={`${
-              IsScrolled
-                ? "bg-white text-black hover:bg-zinc-300"
-                : "bg-black text-white hover:bg-amber-800"
+              Location === "/"
+                ? IsScrolled
+                  ? "bg-white text-black hover:bg-zinc-300"
+                  : "bg-black text-white hover:bg-amber-800"
+                : "bg-white text-black hover:bg-zinc-300"
             } cursor-pointer  px-5 py-2 rounded-full  transition-colors stick-regular`}
           >
             <FaUserAlt />
           </button>
           <button
             className={`${
-              IsScrolled
-                ? "bg-white text-black hover:bg-zinc-300"
-                : "bg-black text-white hover:bg-amber-800"
+              Location === "/"
+                ? IsScrolled
+                  ? "bg-white text-black hover:bg-zinc-300"
+                  : "bg-black text-white hover:bg-amber-800"
+                : "bg-white text-black hover:bg-zinc-300"
             } cursor-pointer px-5 p-2 rounded-full  transition-colors stick-regular`}
           >
             <PiShoppingCartFill size={20} />
           </button>
           <button
             className={`${
-              IsScrolled
-                ? "bg-white text-black hover:bg-zinc-300"
-                : "bg-black text-white hover:bg-amber-800"
+              Location === "/"
+                ? IsScrolled
+                  ? "bg-white text-black hover:bg-zinc-300"
+                  : "bg-black text-white hover:bg-amber-800"
+                : "bg-white text-black hover:bg-zinc-300"
             } cursor-pointer px-5 p-2 rounded-full  transition-colors stick-regular`}
           >
             <FaGlobe />
@@ -137,9 +160,11 @@ function PcHeader({ IsScrolled }: PcHeaderProps) {
         <div className="flex space-x-4">
           <button
             className={`${
-              IsScrolled
-                ? "bg-white text-black hover:bg-zinc-300"
-                : "bg-black text-white hover:bg-amber-800"
+              Location === "/"
+                ? IsScrolled
+                  ? "bg-white text-black hover:bg-zinc-300"
+                  : "bg-black text-white hover:bg-amber-800"
+                : "bg-white text-black hover:bg-zinc-300"
             } cursor-pointer  px-5 py-2 rounded-full  transition-colors stick-regular`}
           >
             SIGN UP

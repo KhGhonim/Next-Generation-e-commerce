@@ -31,7 +31,7 @@ function LevelUP() {
           whileInView={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0 }}
           transition={{ duration: 0.5, delay: 1.5, ease: "easeInOut" }}
-          className="w-64  h-96 lg:w-96 cursor-pointer z-50 lg:h-[30rem] "
+          className="w-52 md:w-72  h-96 lg:w-96 cursor-pointer z-50 lg:h-[30rem]  "
         >
           <img
             src={LevelUPImg}
@@ -47,7 +47,7 @@ function LevelUP() {
           whileHover={{ scale: 1.1 }}
 
           transition={{ duration: 0.5, delay: 1, ease: "easeInOut" }}
-          className="w-52  lg:h-80 z-40 cursor-pointer absolute left-20 max-lg:top-1/12 lg:top-2/12 rotate-45"
+          className="w-52 md:w-64  lg:h-96 z-40 cursor-pointer absolute left-20 max-lg:top-1/12 lg:top-2/12 rotate-45"
         >
           <img
             src={LevelUP2}
@@ -62,7 +62,7 @@ function LevelUP() {
           exit={{ opacity: 0, scale: 0 }}
           whileHover={{ scale: 1.1 }}
           transition={{ duration: 0.5, delay: 0.5, ease: "easeInOut" }}
-          className="w-52  lg:h-80 z-40 cursor-pointer absolute right-20 bottom-1/12 -rotate-45"
+          className="w-52 md:w-64  lg:h-96 z-40 cursor-pointer absolute right-20 bottom-1/12 -rotate-45"
         >
           <img
             src={LevelUP3}
