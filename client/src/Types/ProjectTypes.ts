@@ -33,24 +33,33 @@ export interface DetailsProps {
   quantity: number;
   setQuantity: (quantity: number) => void;
   selectedSize: string;
-  setSelectedSize: (size: string) => void;
+  handleSizeChange: (size: string) => void;
+  HandleCopyToClipboard: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export interface WebsiteLoadingProps {
-  isLoading: boolean;
+  IsClose: boolean
 }
 export interface ImagesProps {
   handleNextImage: () => void,
   handlePrevImage: () => void,
   currentImageIndex: number,
   setCurrentImageIndex: (index: number) => void
+  setIsFixed: (value: boolean) => void
 }
 export interface BigImageProps {
   handleNextImage: () => void,
   handlePrevImage: () => void,
   currentImageIndex: number,
+  setIsFixed: (value: boolean) => void
 }
 export interface SmallImagesProps {
   currentImageIndex: number,
   setCurrentImageIndex: (index: number) => void
+}
+
+export interface MegnifierProps{
+  setIsFixed: (value: boolean) => void;
+  IsFixed: boolean;
+  currentImageIndex: number
 }

@@ -42,7 +42,7 @@ function Cards({ cards }: CardProps) {
           </div>
 
           <Link
-            to={`/product/${card.id}`}
+            to={`/product/${card.id}?size=S`}
             className="absolute bottom-5 left-5 cursor-pointer group right-5 rounded-4xl bg-zinc-200 transition-all hover:bg-zinc-300 duration-300 ease-in-out h-12 flex justify-between items-center  px-4"
           >
             <div className="flex gap-1.5 flex-col ">

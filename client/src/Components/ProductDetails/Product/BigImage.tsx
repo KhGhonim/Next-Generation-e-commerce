@@ -4,7 +4,12 @@ import { BiChevronLeft, BiChevronRight } from "react-icons/bi";
 import { CiMaximize2 } from "react-icons/ci";
 import { BigImageProps } from "../../../Types/ProjectTypes";
 
-function BigImage({ currentImageIndex, handlePrevImage, handleNextImage } : BigImageProps) {
+function BigImage({
+  currentImageIndex,
+  handlePrevImage,
+  handleNextImage,
+  setIsFixed,
+}: BigImageProps) {
   return (
     <div className="aspect-square relative rounded-3xl overflow-hidden bg-neutral-200">
       <img
@@ -29,7 +34,10 @@ function BigImage({ currentImageIndex, handlePrevImage, handleNextImage } : BigI
         <BiChevronRight className="w-6 h-6" />
       </motion.button>
       <motion.button
-        className="absolute right-4 bottom-4 bg-white bg-opacity-80 backdrop-blur-sm rounded-full p-3 shadow-lg"
+        onClick={() => {
+          setIsFixed(true);
+        }}
+        className="absolute  cursor-pointer right-4 bottom-4 bg-white bg-opacity-80 backdrop-blur-sm rounded-full p-3 shadow-lg"
         whileHover={{ scale: 1.1, backgroundColor: "#fff" }}
         whileTap={{ scale: 0.9 }}
       >

@@ -8,6 +8,7 @@ import { DetailsProps } from "../../../Types/ProjectTypes";
 import { useState } from "react";
 import { IoIosHeartEmpty } from "react-icons/io";
 import { IoHeartSharp } from "react-icons/io5";
+import toast from "react-hot-toast";
 
 function Details({
   isVibing,
@@ -15,12 +16,21 @@ function Details({
   quantity,
   setQuantity,
   selectedSize,
-  setSelectedSize,
+  handleSizeChange,
+  HandleCopyToClipboard,
 }: DetailsProps) {
   const [IsLiked, setIsLiked] = useState(false);
 
   const HandleLike = () => {
-    setIsLiked(true);
+    setIsLiked((prev) => !prev);
+  };
+  const handleMaxNumber = () => {
+    if (quantity < 10) {
+      setQuantity(Math.min(10, quantity + 1));
+    } else {
+      setQuantity(10);
+      toast.error("Max quantity reached");
+    }
   };
 
   return (
@@ -62,13 +72,15 @@ function Details({
           <h3 className="font-medium">
             SIZE: <span className="font-bold">{selectedSize}</span>
           </h3>
-          <button className="text-sm underline">Size Guide</button>
+          <button className="text-sm underline cursor-pointer">
+            Size Guide
+          </button>
         </div>
         <div className="flex gap-3">
           {["XS", "S", "M", "L", "XL"].map((size) => (
             <motion.button
               key={size}
-              onClick={() => setSelectedSize(size)}
+              onClick={() => handleSizeChange(size)}
               className={`w-12 h-12 cursor-pointer rounded-2xl border-2 font-medium ${
                 selectedSize === size
                   ? "border-black bg-black text-white"
@@ -83,8 +95,8 @@ function Details({
         </div>
       </div>
 
-      <div className="flex gap-4 mb-8">
-        <div className="flex items-center border-2 border-gray-200 rounded-xl">
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex w-1/2 items-center justify-evenly border-2 border-gray-200 rounded-xl">
           <motion.button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             className="p-3"
@@ -95,13 +107,10 @@ function Details({
           <input
             type="number"
             value={quantity}
-            onChange={(e) =>
-              setQuantity(Math.max(1, parseInt(e.target.value) || 1))
-            }
             className="w-16  text-center border-x border-gray-200 bg-transparent"
           />
           <motion.button
-            onClick={() => setQuantity(Math.min(10, quantity + 1))}
+            onClick={handleMaxNumber}
             className="p-3"
             whileTap={{ scale: 0.9 }}
           >
@@ -109,40 +118,45 @@ function Details({
           </motion.button>
         </div>
 
-        <motion.button
-          className={`flex-1 cursor-pointer bg-black text-white py-4 px-6 rounded-xl font-medium text-lg flex items-center justify-center gap-2`}
-          onClick={addToCart}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          {isVibing ? (
-            <motion.span
-              layoutId="isVibing"
-              className="animate-bounce text-amber-300"
-            >
-              🔥
-            </motion.span>
-          ) : (
-            <motion.span layoutId="isVibing">
-              <FaFire className={`w-5 h-5 `} />
-            </motion.span>
-          )}
-          ADD TO CART
-        </motion.button>
+        <div className="flex w-full gap-4">
+          <motion.button
+            className={`flex-1 cursor-pointer bg-black text-white py-4 px-6 rounded-xl font-medium text-lg flex items-center justify-center gap-2`}
+            onClick={addToCart}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {isVibing ? (
+              <motion.span
+                layoutId="isVibing"
+                className="animate-bounce text-amber-300"
+              >
+                🔥
+              </motion.span>
+            ) : (
+              <motion.span layoutId="isVibing">
+                <FaFire className={`w-5 h-5 `} />
+              </motion.span>
+            )}
+            ADD TO CART
+          </motion.button>
 
-        <motion.button
-          className="px-4 rounded-full border border-gray-50"
-          whileTap={{ scale: 0.9 }}
-          onClick={() => {
-            HandleLike();
-          }}
-        >
-          {IsLiked ? (
-            <IoHeartSharp size={20} className="text-red-600" />
-          ) : (
-            <IoIosHeartEmpty size={20} className="text-black" />
-          )}
-        </motion.button>
+          <motion.button
+            className="px-4 rounded-full border border-gray-50"
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              HandleLike();
+            }}
+          >
+            {IsLiked ? (
+              <IoHeartSharp size={20} className="text-red-600 cursor-pointer" />
+            ) : (
+              <IoIosHeartEmpty
+                size={20}
+                className="text-black cursor-pointer"
+              />
+            )}
+          </motion.button>
+        </div>
       </div>
 
       <div className="mb-8 bg-neutral-100 p-4 rounded-xl">
@@ -168,21 +182,41 @@ function Details({
 
       <div className="flex items-center gap-4 text-gray-700">
         <p className="text-sm mr-2">Share your fit:</p>
-        <motion.button className="hover:text-black" whileHover={{ scale: 1.2 }}>
+        <motion.button
+          onClick={HandleCopyToClipboard}
+          className="hover:text-black cursor-pointer"
+          whileHover={{ scale: 1.2 }}
+        >
           <FaTiktok className="w-5 h-5" />
         </motion.button>
-        <motion.button className="hover:text-black" whileHover={{ scale: 1.2 }}>
+        <motion.button
+          onClick={HandleCopyToClipboard}
+          className="hover:text-black cursor-pointer"
+          whileHover={{ scale: 1.2 }}
+        >
           <FaInstagram className="w-5 h-5" />
         </motion.button>
-        <motion.button className="hover:text-black" whileHover={{ scale: 1.2 }}>
+        <motion.button
+          onClick={HandleCopyToClipboard}
+          className="hover:text-black cursor-pointer"
+          whileHover={{ scale: 1.2 }}
+        >
           <SiSnapchat className="w-5 h-5" />
         </motion.button>
-        <motion.button className="hover:text-black" whileHover={{ scale: 1.2 }}>
+        <motion.button
+          onClick={HandleCopyToClipboard}
+          className="hover:text-black cursor-pointer"
+          whileHover={{ scale: 1.2 }}
+        >
           <BsTwitter className="w-5 h-5" />
         </motion.button>
-        <motion.button className="hover:text-black" whileHover={{ scale: 1.2 }}>
+        <motion.a
+          href={`mailto:kg@khaledghonim.com`}
+          className="hover:text-black cursor-pointer"
+          whileHover={{ scale: 1.2 }}
+        >
           <CgMail className="w-5 h-5" />
-        </motion.button>
+        </motion.a>
       </div>
     </div>
   );

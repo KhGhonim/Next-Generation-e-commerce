@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 import { WebsiteLoadingProps } from "../../Types/ProjectTypes";
 
-function WebsiteLoading({ isLoading }: WebsiteLoadingProps) {
+function WebsiteLoading({IsClose }: WebsiteLoadingProps) {
   return (
     <div className="fixed inset-0 z-[9999] flex  items-center justify-center">
-      {isLoading ? (
+      {IsClose ? (
         <div className="z-50 loader">
           <div className="truckWrapper">
             <div className="truckBody">
@@ -136,7 +136,7 @@ h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"
         </div>
       ) : null}
 
-      {isLoading ? (
+      {IsClose ? (
         <div className="fixed inset-0 bg-white/75 blur-sm"></div>
       ) : null}
 

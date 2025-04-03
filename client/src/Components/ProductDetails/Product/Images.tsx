@@ -7,6 +7,7 @@ function Images({
   handlePrevImage,
   currentImageIndex,
   setCurrentImageIndex,
+  setIsFixed,
 }: ImagesProps) {
   return (
     <div className="relative">
@@ -14,6 +15,7 @@ function Images({
         currentImageIndex={currentImageIndex}
         handlePrevImage={handlePrevImage}
         handleNextImage={handleNextImage}
+        setIsFixed={setIsFixed}
       />
       <SmallImages
         setCurrentImageIndex={setCurrentImageIndex}

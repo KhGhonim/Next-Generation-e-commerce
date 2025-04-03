@@ -25,7 +25,11 @@ function PhoneHeader({ IsScrolled }: PhoneHeaderProps) {
           <button
             onClick={() => setisDrawerOpen(true)}
             className={`${
-              IsScrolled ? "bg-white text-black" : "bg-black  text-white "
+              Location === "/"
+                ? IsScrolled
+                  ? "text-black bg-zinc-200"
+                  : "text-white bg-gray-900"
+                : "text-black bg-zinc-200"
             } cursor-pointere text-xs p-2 px-4 mx-5 rounded-full hover:bg-gray-800 transition-colors almarai-light`}
           >
             {isDrawerOpen ? (
@@ -84,14 +88,22 @@ function PhoneHeader({ IsScrolled }: PhoneHeaderProps) {
           <div className="flex space-x-2">
             <button
               className={`${
-                IsScrolled ? "text-black bg-zinc-200" : "text-white bg-gray-900"
+                Location === "/"
+                  ? IsScrolled
+                    ? "text-black bg-zinc-200"
+                    : "text-white bg-gray-900"
+                  : "text-black bg-zinc-200"
               } cursor-pointer  text-xs p-2  rounded-full hover:bg-gray-800 transition-colors almarai-light`}
             >
               <CiLogin size={20} />
             </button>
             <button
               className={`${
-                IsScrolled ? "text-black bg-zinc-200" : "text-white bg-gray-900"
+                Location === "/"
+                  ? IsScrolled
+                    ? "text-black bg-zinc-200"
+                    : "text-white bg-gray-900"
+                  : "text-black bg-zinc-200"
               }  cursor-pointer  p-2 rounded-full hover:bg-gray-800 transition-colors almarai-light `}
             >
               <PiShoppingCartFill size={20} />
