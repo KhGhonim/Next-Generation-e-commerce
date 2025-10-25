@@ -15,6 +15,9 @@ interface SignupData {
   password: string;
 }
 
+//environment variables
+const API_URL = import.meta.env.VITE_APP_API_URL;
+
 export const useAuth = () => {
   const { user, isLoading, isAuthenticated } = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
@@ -23,7 +26,7 @@ export const useAuth = () => {
   const login = async (data: LoginData) => {
     dispatch(setLoading(true));
     try {
-      const response = await fetch("http://localhost:3001/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +55,7 @@ export const useAuth = () => {
   const signup = async (data: SignupData) => {
     dispatch(setLoading(true));
     try {
-      const response = await fetch("http://localhost:3001/api/auth/signup", {
+      const response = await fetch(`${API_URL}/api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +83,7 @@ export const useAuth = () => {
   const logout = async () => {
     dispatch(setLoading(true));
     try {
-      const response = await fetch("http://localhost:3001/api/auth/logout", {
+      const response = await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -102,7 +105,7 @@ export const useAuth = () => {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/auth/me", {
+      const response = await fetch(`${API_URL}/api/auth/me`, {
         method: "GET",
         credentials: "include",
       });
