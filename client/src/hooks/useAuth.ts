@@ -125,6 +125,181 @@ export const useAuth = () => {
     }
   };
 
+  const updateBillingAddress = async (billingData: {
+    phone?: string;
+    address?: string;
+    city?: string;
+    zipCode?: string;
+    country?: string;
+  }) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await fetch(`${API_URL}/api/auth/billing`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(billingData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        dispatch(setUser(result.user));
+        toast.success("Billing address updated successfully!");
+        return result.user;
+      } else {
+        toast.error(result.message || "Failed to update billing address");
+        return null;
+      }
+    } catch (error) {
+      console.error("Update billing address error:", error);
+      toast.error("An error occurred while updating billing address");
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const addPaymentMethod = async (paymentData: {
+    cardNumber: string;
+    expiryDate: string;
+    cardHolderName: string;
+    isDefault?: boolean;
+  }) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await fetch(`${API_URL}/api/auth/payment-methods`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(paymentData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Refresh user data to get updated payment methods
+        await checkAuth();
+        toast.success("Payment method added successfully!");
+        return result.paymentMethod;
+      } else {
+        toast.error(result.message || "Failed to add payment method");
+        return null;
+      }
+    } catch (error) {
+      console.error("Add payment method error:", error);
+      toast.error("An error occurred while adding payment method");
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const updatePaymentMethod = async (methodId: string, paymentData: {
+    cardNumber?: string;
+    expiryDate?: string;
+    cardHolderName?: string;
+    isDefault?: boolean;
+  }) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await fetch(`${API_URL}/api/auth/payment-methods/${methodId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(paymentData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Refresh user data to get updated payment methods
+        await checkAuth();
+        toast.success("Payment method updated successfully!");
+        return result.paymentMethod;
+      } else {
+        toast.error(result.message || "Failed to update payment method");
+        return null;
+      }
+    } catch (error) {
+      console.error("Update payment method error:", error);
+      toast.error("An error occurred while updating payment method");
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const deletePaymentMethod = async (methodId: string) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await fetch(`${API_URL}/api/auth/payment-methods/${methodId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Refresh user data to get updated payment methods
+        await checkAuth();
+        toast.success("Payment method deleted successfully!");
+        return true;
+      } else {
+        toast.error(result.message || "Failed to delete payment method");
+        return false;
+      }
+    } catch (error) {
+      console.error("Delete payment method error:", error);
+      toast.error("An error occurred while deleting payment method");
+      return false;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const updateProfile = async (profileData: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+  }) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(profileData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        dispatch(setUser(result.user));
+        toast.success("Profile updated successfully!");
+        return result.user;
+      } else {
+        toast.error(result.message || "Failed to update profile");
+        return null;
+      }
+    } catch (error) {
+      console.error("Update profile error:", error);
+      toast.error("An error occurred while updating profile");
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
   return {
     user,
     isLoading,
@@ -133,5 +308,10 @@ export const useAuth = () => {
     signup,
     logout,
     checkAuth,
+    updateProfile,
+    updateBillingAddress,
+    addPaymentMethod,
+    updatePaymentMethod,
+    deletePaymentMethod,
   };
 };

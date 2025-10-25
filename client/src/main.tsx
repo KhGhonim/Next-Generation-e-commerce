@@ -17,6 +17,7 @@ import Cookies from "./Pages/Cookies/Cookies.tsx";
 import HelpCenter from "./Pages/HelpCenter/HelpCenter.tsx";
 import SizeGuide from "./Pages/SizeGuide/SizeGuide.tsx";
 import ShippingInfo from "./Pages/ShippingInfo/ShippingInfo.tsx";
+import ProtectedRoute from "./Components/ProtectedRoute/ProtectedRoute.tsx";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./store";
@@ -32,11 +33,11 @@ ReactDOM.createRoot(root!).render(
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
             <Route path="/returns" element={<Returns />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/cookies" element={<Cookies />} />
             <Route path="/help" element={<HelpCenter />} />

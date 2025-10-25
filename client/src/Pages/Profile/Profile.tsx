@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { 
   FaUserAlt, 
   FaEnvelope, 
@@ -15,19 +15,19 @@ import {
   FaShieldAlt,
   FaCog
 } from "react-icons/fa";
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { setUser, clearUser, setLoading } from "../../store/slices/userSlice";
+import { useAuth } from "../../hooks/useAuth";
 import toast from "react-hot-toast";
+import { PaymentMethod } from "../../Types/ProjectTypes";
 
 type TabType = 'profile' | 'billing' | 'payment';
 
 function Profile() {
-  const { user, isLoading, isAuthenticated } = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const { user, isLoading, logout, checkAuth, updateProfile, updateBillingAddress, addPaymentMethod, updatePaymentMethod, deletePaymentMethod } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('profile');
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingBilling, setIsEditingBilling] = useState(false);
+  const [isAddingPayment, setIsAddingPayment] = useState(false);
   const [editData, setEditData] = useState({
     firstName: '',
     lastName: '',
@@ -38,32 +38,23 @@ function Profile() {
     zipCode: '',
     country: '',
   });
+  const [billingData, setBillingData] = useState({
+    phone: '',
+    address: '',
+    city: '',
+    zipCode: '',
+    country: '',
+  });
+  const [paymentData, setPaymentData] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cardHolderName: '',
+    isDefault: false,
+  });
 
   useEffect(() => {
-    const checkAuth = async () => {
-      dispatch(setLoading(true));
-      try {
-        const response = await fetch("http://localhost:3001/api/auth/me", {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          dispatch(setUser(result.user));
-        } else {
-          dispatch(clearUser());
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-        dispatch(clearUser());
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
     checkAuth();
-  }, [dispatch]);
+  }, [checkAuth]);
 
   useEffect(() => {
     if (user) {
@@ -77,36 +68,37 @@ function Profile() {
         zipCode: user.zipCode || '',
         country: user.country || '',
       });
+      setBillingData({
+        phone: user.phone || '',
+        address: user.address || '',
+        city: user.city || '',
+        zipCode: user.zipCode || '',
+        country: user.country || '',
+      });
     }
   }, [user]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      const response = await fetch("http://localhost:3001/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        dispatch(clearUser());
-        toast.success("Logged out successfully!");
-        navigate("/login");
-      } else {
-        toast.error("Logout failed");
-      }
+    await logout();
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("An error occurred during logout");
     } finally {
       setIsLoggingOut(false);
     }
   };
 
-  const handleSave = () => {
-    // Here you would typically make an API call to update the user data
-    toast.success("Profile updated successfully!");
-    setIsEditing(false);
+  const handleSave = async () => {
+    const result = await updateProfile({
+      firstName: editData.firstName,
+      lastName: editData.lastName,
+      email: editData.email,
+      phone: editData.phone,
+    });
+    if (result) {
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {
@@ -125,6 +117,64 @@ function Profile() {
     setIsEditing(false);
   };
 
+  const handleSaveBilling = async () => {
+    const result = await updateBillingAddress(billingData);
+    if (result) {
+      setIsEditingBilling(false);
+    }
+  };
+
+  const handleCancelBilling = () => {
+    if (user) {
+      setBillingData({
+        phone: user.phone || '',
+        address: user.address || '',
+        city: user.city || '',
+        zipCode: user.zipCode || '',
+        country: user.country || '',
+      });
+    }
+    setIsEditingBilling(false);
+  };
+
+  const handleAddPayment = async () => {
+    if (!paymentData.cardNumber || !paymentData.expiryDate || !paymentData.cardHolderName) {
+      toast.error("Please fill in all payment method fields");
+      return;
+    }
+    
+    const result = await addPaymentMethod(paymentData);
+    if (result) {
+      setPaymentData({
+        cardNumber: '',
+        expiryDate: '',
+        cardHolderName: '',
+        isDefault: false,
+      });
+      setIsAddingPayment(false);
+    }
+  };
+
+  const handleCancelPayment = () => {
+    setPaymentData({
+      cardNumber: '',
+      expiryDate: '',
+      cardHolderName: '',
+      isDefault: false,
+    });
+    setIsAddingPayment(false);
+  };
+
+  const handleDeletePayment = async (methodId: string) => {
+    if (window.confirm("Are you sure you want to delete this payment method?")) {
+      await deletePaymentMethod(methodId);
+    }
+  };
+
+  const handleSetDefaultPayment = async (methodId: string) => {
+    await updatePaymentMethod(methodId, { isDefault: true });
+  };
+
   const tabs = [
     { id: 'profile' as TabType, label: 'Profile', icon: FaUserAlt },
     { id: 'billing' as TabType, label: 'Billing Address', icon: FaMapMarkerAlt },
@@ -139,19 +189,10 @@ function Profile() {
     );
   }
 
-  if (!isAuthenticated || !user) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to view your profile</h2>
-          <Link
-            to="/login"
-            className="inline-block bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
-            aria-label="Go to login page"
-          >
-            Go to Login
-          </Link>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
       </div>
     );
   }
@@ -163,30 +204,30 @@ function Profile() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 lg:mb-8"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 stick-bold">Account Settings</h1>
-              <p className="text-gray-600 stick-regular mt-2">Manage your account information and preferences</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3 bg-white px-4 py-2 rounded-lg shadow-sm">
-                <FaShieldAlt className="text-green-500" />
-                <span className="text-sm text-gray-600 stick-regular">Account Secure</span>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0">
+            <div className="text-center lg:text-left">
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 stick-bold">Account Settings</h1>
+              <p className="text-gray-600 stick-regular mt-1 lg:mt-2 text-sm lg:text-base">Manage your account information and preferences</p>
+              </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3 lg:gap-4">
+              <div className="flex items-center space-x-2 lg:space-x-3 bg-white px-3 lg:px-4 py-2 rounded-lg shadow-sm">
+                <FaShieldAlt className="text-green-500 text-sm lg:text-base" />
+                <span className="text-xs lg:text-sm text-gray-600 stick-regular">Account Secure</span>
               </div>
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors stick-regular disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 cursor-pointer"
+                className="bg-red-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-red-700 transition-colors stick-regular disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 cursor-pointer w-full sm:w-auto justify-center"
                 aria-label="Logout from account"
               >
                 {isLoggingOut ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 ) : (
                   <>
-                    <FaSignOutAlt />
-                    <span>Logout</span>
+                    <FaSignOutAlt className="text-sm lg:text-base" />
+                    <span className="text-sm lg:text-base">Logout</span>
                   </>
                 )}
               </button>
@@ -386,42 +427,119 @@ function Profile() {
                   >
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-semibold text-gray-900 stick-bold">Billing Address</h2>
-                      <button className="flex items-center space-x-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer">
-                        <FaEdit />
-                        <span className="stick-regular">Edit</span>
-                      </button>
+                      {!isEditingBilling ? (
+                        <button
+                          onClick={() => setIsEditingBilling(true)}
+                          className="flex items-center space-x-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+                        >
+                          <FaEdit />
+                          <span className="stick-regular">Edit</span>
+                        </button>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={handleSaveBilling}
+                            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
+                          >
+                            <FaSave />
+                            <span className="stick-regular">Save</span>
+                          </button>
+                          <button
+                            onClick={handleCancelBilling}
+                            className="flex items-center space-x-2 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
+                          >
+                            <FaTimes />
+                            <span className="stick-regular">Cancel</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 stick-regular mb-2">
+                          Phone Number
+                        </label>
+                        {isEditingBilling ? (
+                          <input
+                            type="tel"
+                            value={billingData.phone}
+                            onChange={(e) => setBillingData({ ...billingData, phone: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
+                          />
+                        ) : (
+                          <div className="flex items-center space-x-2 py-2">
+                            <FaPhone className="h-4 w-4 text-gray-400" />
+                            <p className="text-gray-900 stick-regular">{user.phone || 'Not provided'}</p>
+                          </div>
+                        )}
+                      </div>
+
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 stick-regular mb-2">
                           Street Address
                         </label>
-                        <div className="flex items-center space-x-2 py-2">
-                          <FaMapMarkerAlt className="h-4 w-4 text-gray-400" />
-                          <p className="text-gray-900 stick-regular">{user.address || 'Not provided'}</p>
-                        </div>
+                        {isEditingBilling ? (
+                          <input
+                            type="text"
+                            value={billingData.address}
+                            onChange={(e) => setBillingData({ ...billingData, address: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
+                          />
+                        ) : (
+                          <div className="flex items-center space-x-2 py-2">
+                            <FaMapMarkerAlt className="h-4 w-4 text-gray-400" />
+                            <p className="text-gray-900 stick-regular">{user.address || 'Not provided'}</p>
+                          </div>
+                        )}
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 stick-regular mb-2">
                           City
                         </label>
-                        <p className="text-gray-900 stick-regular py-2">{user.city || 'Not provided'}</p>
+                        {isEditingBilling ? (
+                          <input
+                            type="text"
+                            value={billingData.city}
+                            onChange={(e) => setBillingData({ ...billingData, city: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
+                          />
+                        ) : (
+                          <p className="text-gray-900 stick-regular py-2">{user.city || 'Not provided'}</p>
+                        )}
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 stick-regular mb-2">
                           ZIP Code
                         </label>
-                        <p className="text-gray-900 stick-regular py-2">{user.zipCode || 'Not provided'}</p>
+                        {isEditingBilling ? (
+                          <input
+                            type="text"
+                            value={billingData.zipCode}
+                            onChange={(e) => setBillingData({ ...billingData, zipCode: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
+                          />
+                        ) : (
+                          <p className="text-gray-900 stick-regular py-2">{user.zipCode || 'Not provided'}</p>
+                        )}
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 stick-regular mb-2">
                           Country
                         </label>
-                        <p className="text-gray-900 stick-regular py-2">{user.country || 'Not provided'}</p>
+                        {isEditingBilling ? (
+                          <input
+                            type="text"
+                            value={billingData.country}
+                            onChange={(e) => setBillingData({ ...billingData, country: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
+                          />
+                        ) : (
+                          <p className="text-gray-900 stick-regular py-2">{user.country || 'Not provided'}</p>
+                        )}
                       </div>
                     </div>
 
@@ -447,43 +565,142 @@ function Profile() {
                   >
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-semibold text-gray-900 stick-bold">Payment Methods</h2>
-                      <button className="flex items-center space-x-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer">
-                        <FaCreditCard />
-                        <span className="stick-regular">Add Card</span>
-                      </button>
+                      {!isAddingPayment ? (
+                <button
+                          onClick={() => setIsAddingPayment(true)}
+                          className="flex items-center space-x-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+                        >
+                          <FaCreditCard />
+                          <span className="stick-regular">Add Card</span>
+                        </button>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={handleAddPayment}
+                            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
+                          >
+                            <FaSave />
+                            <span className="stick-regular">Save</span>
+                          </button>
+                          <button
+                            onClick={handleCancelPayment}
+                            className="flex items-center space-x-2 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
+                          >
+                            <FaTimes />
+                            <span className="stick-regular">Cancel</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-4">
-                      {/* Sample Payment Method */}
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="bg-blue-100 p-2 rounded-lg">
-                              <FaCreditCard className="h-6 w-6 text-blue-600" />
+                      {/* Add Payment Method Form */}
+                      {isAddingPayment && (
+                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                          <h3 className="text-lg font-semibold text-gray-900 stick-bold mb-4">Add New Payment Method</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 stick-regular mb-2">
+                                Card Number
+                              </label>
+                              <input
+                                type="text"
+                                value={paymentData.cardNumber}
+                                onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value })}
+                                placeholder="1234 5678 9012 3456"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
+                              />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900 stick-bold">•••• •••• •••• 4242</p>
-                              <p className="text-sm text-gray-500 stick-regular">Expires 12/25</p>
+                              <label className="block text-sm font-medium text-gray-700 stick-regular mb-2">
+                                Expiry Date
+                              </label>
+                              <input
+                                type="text"
+                                value={paymentData.expiryDate}
+                                onChange={(e) => setPaymentData({ ...paymentData, expiryDate: e.target.value })}
+                                placeholder="MM/YY"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 stick-regular mb-2">
+                                Card Holder Name
+                              </label>
+                              <input
+                                type="text"
+                                value={paymentData.cardHolderName}
+                                onChange={(e) => setPaymentData({ ...paymentData, cardHolderName: e.target.value })}
+                                placeholder="John Doe"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  checked={paymentData.isDefault}
+                                  onChange={(e) => setPaymentData({ ...paymentData, isDefault: e.target.checked })}
+                                  className="rounded border-gray-300"
+                                />
+                                <span className="text-sm text-gray-700 stick-regular">Set as default payment method</span>
+                              </label>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full stick-regular">
-                              Default
-                            </span>
-                            <button className="text-gray-400 hover:text-gray-600 cursor-pointer">
-                              <FaEdit />
-                            </button>
-                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      <div className="text-center py-8">
-                        <div className="text-gray-400 mb-4">
-                          <FaCreditCard className="h-12 w-12 mx-auto" />
+                      {/* Existing Payment Methods */}
+                      {user?.paymentMethods && user.paymentMethods.length > 0 ? (
+                        user.paymentMethods.map((method: PaymentMethod, index: number) => (
+                          <div key={method._id || index} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="bg-blue-100 p-2 rounded-lg">
+                                  <FaCreditCard className="h-6 w-6 text-blue-600" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-gray-900 stick-bold">
+                                    •••• •••• •••• {method.cardNumber.slice(-4)}
+                                  </p>
+                                  <p className="text-sm text-gray-500 stick-regular">
+                                    Expires {method.expiryDate} • {method.cardHolderName}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                {method.isDefault && (
+                                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full stick-regular">
+                                    Default
+                                  </span>
+                                )}
+                                {!method.isDefault && (
+                                  <button
+                                    onClick={() => handleSetDefaultPayment(method._id)}
+                                    className="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 rounded-full border border-blue-600 hover:bg-blue-50 transition-colors stick-regular cursor-pointer"
+                                  >
+                                    Set Default
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleDeletePayment(method._id)}
+                                  className="text-red-400 hover:text-red-600 cursor-pointer"
+                                >
+                                  <FaTimes />
+                </button>
+              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <div className="text-gray-400 mb-4">
+                            <FaCreditCard className="h-12 w-12 mx-auto" />
+                          </div>
+                          <p className="text-gray-500 stick-regular">No payment methods added yet</p>
+                          <p className="text-sm text-gray-400 stick-regular">Add a payment method to make purchases</p>
                         </div>
-                        <p className="text-gray-500 stick-regular">No payment methods added yet</p>
-                        <p className="text-sm text-gray-400 stick-regular">Add a payment method to make purchases</p>
-                      </div>
+                      )}
                     </div>
 
                     <div className="mt-6 p-4 bg-green-50 rounded-lg">
@@ -492,13 +709,13 @@ function Profile() {
                         <p className="text-sm text-green-800 stick-regular">
                           All payment information is processed securely and encrypted
                         </p>
-                      </div>
-                    </div>
-                  </motion.div>
+            </div>
+          </div>
+        </motion.div>
                 )}
               </AnimatePresence>
             </div>
-          </motion.div>
+      </motion.div>
         </div>
       </div>
     </div>

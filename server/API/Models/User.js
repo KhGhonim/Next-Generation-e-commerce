@@ -60,7 +60,59 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  }
+  },
+  // Billing Address fields
+  phone: {
+    type: String,
+    trim: true,
+    maxlength: [20, "Phone number cannot exceed 20 characters"]
+  },
+  address: {
+    type: String,
+    trim: true,
+    maxlength: [200, "Address cannot exceed 200 characters"]
+  },
+  city: {
+    type: String,
+    trim: true,
+    maxlength: [50, "City cannot exceed 50 characters"]
+  },
+  zipCode: {
+    type: String,
+    trim: true,
+    maxlength: [20, "ZIP code cannot exceed 20 characters"]
+  },
+  country: {
+    type: String,
+    trim: true,
+    maxlength: [50, "Country cannot exceed 50 characters"]
+  },
+  // Payment Methods
+  paymentMethods: [{
+    cardNumber: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    expiryDate: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    cardHolderName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    isDefault: {
+      type: Boolean,
+      default: false
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true // Adds createdAt and updatedAt fields
 });

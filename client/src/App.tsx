@@ -12,20 +12,25 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    setisLoading(true);
-    setIsClose(true);
-    const timer = setTimeout(() => {
-      setisLoading(false);
-    }, 4000);
-    const timer2 = setTimeout(() => {
-      setIsClose(false);
-    }, 3800);
+    // Only show loading on initial page load (refresh or first visit)
+    if (location.pathname === "/" && !sessionStorage.getItem("hasVisited")) {
+      setisLoading(true);
+      setIsClose(true);
+      sessionStorage.setItem("hasVisited", "true");
+      
+      const timer = setTimeout(() => {
+        setisLoading(false);
+      }, 4000);
+      const timer2 = setTimeout(() => {
+        setIsClose(false);
+      }, 3800);
 
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(timer2);
-    };
-  }, [location.pathname]);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(timer2);
+      };
+    }
+  }, []); // Empty dependency array - only run once
 
   return (
     <AnimatePresence>

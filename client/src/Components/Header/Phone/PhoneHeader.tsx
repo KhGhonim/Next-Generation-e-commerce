@@ -34,14 +34,14 @@ function PhoneHeader({ user }: PhoneHeaderProps) {
       label: "Wishlist",
       path: "/wishlist",
       active: Location === "/wishlist",
-      badge: wishlistItems.length,
+      badge: wishlistItems.length > 0 ? wishlistItems.length : undefined,
     },
     {
       icon: PiShoppingCartFill,
       label: "Cart",
       path: "#",
       active: false,
-      badge: uniqueItems,
+      badge: uniqueItems > 0 ? uniqueItems : undefined,
       onClick: () => setIsCartOpen(true),
     },
     {
@@ -97,6 +97,11 @@ function PhoneHeader({ user }: PhoneHeaderProps) {
                     aria-label={item.label}
                   >
                     <IconComponent size={16} />
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center stick-bold">
+                        {item.badge > 99 ? "99+" : item.badge}
+                      </span>
+                    )}
                   </button>
                 ) : (
                   <Link
@@ -109,6 +114,11 @@ function PhoneHeader({ user }: PhoneHeaderProps) {
                     aria-label={item.label}
                   >
                     <IconComponent size={16} />
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center stick-bold">
+                        {item.badge > 99 ? "99+" : item.badge}
+                      </span>
+                    )}
                   </Link>
                 )}
               </motion.div>

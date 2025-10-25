@@ -32,23 +32,6 @@ function Wishlist() {
     toast.success(`${item.name} added to cart!`);
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center pt-24 lg:pt-32">
-        <div className="text-center">
-          <FaHeart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to view your wishlist</h2>
-          <Link
-            to="/login"
-            className="inline-block bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
-            aria-label="Go to login page"
-          >
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 lg:pt-32">

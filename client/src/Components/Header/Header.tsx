@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 function Header() {
   const [IsScrolled, setIsScrolled] = useState(false);
-  const { user, checkAuth } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,10 +22,6 @@ function Header() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
 
   return (
     <>

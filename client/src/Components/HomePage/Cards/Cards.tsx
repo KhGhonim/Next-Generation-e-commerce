@@ -1,11 +1,10 @@
 import { IoIosHeartEmpty } from "react-icons/io";
 import { CardProps } from "../../../Types/ProjectTypes";
-import { useState } from "react";
 import { IoHeartSharp } from "react-icons/io5";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { WishlistItem } from "../../../store/slices/wishlistSlice";
-import { toast } from "react-hot-toast";
+import { useAppSelector } from "../../../store/hooks";
 
 interface CardsProps extends CardProps {
   onWishlistToggle?: (card: WishlistItem) => void;
@@ -13,23 +12,13 @@ interface CardsProps extends CardProps {
 }
 
 function Cards({ cards, onWishlistToggle, isAuthenticated }: CardsProps) {
-  const [likedCards, setLikedCards] = useState(new Set());
+  const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
+
+  const isInWishlist = (cardId: string) => {
+    return wishlistItems.some(item => item.id === cardId);
+  };
 
   const handleLikeToggle = (card: WishlistItem) => {
-    if (!isAuthenticated) {
-      toast.error("Please log in to add items to your wishlist");
-      return; 
-    }
-    
-    setLikedCards((prevLikedCards) => {
-      const newLikedCards = new Set(prevLikedCards);
-      if (newLikedCards.has(card.id)) {
-        newLikedCards.delete(card.id);
-      } else {
-        newLikedCards.add(card.id);
-      }
-      return newLikedCards;
-    });
     
     if (onWishlistToggle) {
       onWishlistToggle(card);
@@ -63,12 +52,16 @@ function Cards({ cards, onWishlistToggle, isAuthenticated }: CardsProps) {
               inStock: true,
               addedAt: new Date().toISOString(),
             })}
-            className={`absolute cursor-pointer top-5 right-5 bg-zinc-200 w-10 h-10 flex justify-center items-center rounded-4xl ${
+            className={`absolute cursor-pointer top-5 right-5 w-10 h-10 flex justify-center items-center rounded-4xl transition-colors ${
+              isInWishlist(card.id.toString()) 
+                ? 'bg-red-500' 
+                : 'bg-zinc-200'
+            } ${
               !isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {likedCards.has(card.id) ? (
-              <IoHeartSharp size={20} className="text-red-600" />
+            {isInWishlist(card.id.toString()) ? (
+              <IoHeartSharp size={20} className="text-white" />
             ) : (
               <IoIosHeartEmpty size={20} className="text-black" />
             )}

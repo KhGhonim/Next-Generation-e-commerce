@@ -4,6 +4,15 @@ export interface PhoneDrawerProps {
   user?: User | null;
 }
 
+export interface PaymentMethod {
+  _id: string;
+  cardNumber: string;
+  expiryDate: string;
+  cardHolderName: string;
+  isDefault: boolean;
+  addedAt: string;
+}
+
 export interface User {
   _id: string;
   firstName: string;
@@ -14,6 +23,7 @@ export interface User {
   city?: string;
   zipCode?: string;
   country?: string;
+  paymentMethods?: PaymentMethod[];
 }
 
 export interface PcHeaderProps {

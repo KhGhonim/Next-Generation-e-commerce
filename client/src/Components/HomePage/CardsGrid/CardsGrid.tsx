@@ -4,14 +4,19 @@ import { PhotosAndTitle } from "../../../Context/Context";
 import { MdOutlineArrowOutward } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { addToWishlist, WishlistItem } from "../../../store/slices/wishlistSlice";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  WishlistItem,
+} from "../../../store/slices/wishlistSlice";
 import toast from "react-hot-toast";
 
 function CardsGrid() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { isAuthenticated } = useAppSelector((state) => state.user);
-  
+  const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -24,35 +29,46 @@ function CardsGrid() {
   };
 
   const handleShopNavigation = () => {
-    navigate('/shop');
+    navigate("/shop");
   };
 
-    const handleWishlistToggle = (card: WishlistItem) => {
+  const handleWishlistToggle = (card: WishlistItem) => {
     if (!isAuthenticated) {
       toast.error("Please log in to add items to your wishlist");
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
-    dispatch(addToWishlist({
-      id: card.id.toString(),
-      name: card.name,
-      price: card.price,
-      image: card.image,
-      category: card.category,
-      brand: 'VEXO',
-      rating: card.rating,
-      reviews: card.reviews,
-      sizes: card.sizes,
-      colors: card.colors,
-      description: card.description,
-      inStock: true,
-    }));
-    
-    toast.success(`${card.name} added to wishlist!`);
+    // Check if item is already in wishlist
+    const isInWishlist = wishlistItems.some((item) => item.id === card.id);
+
+    if (isInWishlist) {
+      // Remove from wishlist
+      dispatch(removeFromWishlist(card.id));
+      toast.success(`${card.name} removed from wishlist!`);
+    } else {
+      // Add to wishlist
+      dispatch(
+        addToWishlist({
+          id: card.id.toString(),
+          name: card.name,
+          price: card.price,
+          image: card.image,
+          category: card.category,
+          brand: "VEXO",
+          rating: card.rating,
+          reviews: card.reviews,
+          sizes: card.sizes,
+          colors: card.colors,
+          description: card.description,
+          inStock: true,
+        })
+      );
+      toast.success(`${card.name} added to wishlist!`);
+    }
   };
 
-    return (
+  return (
     <AnimatePresence mode="wait">
       <section className="w-full pt-20 lg:pt-28 CardsGrid !overflow-hidden relative ">
         <motion.div
@@ -93,8 +109,8 @@ function CardsGrid() {
           transition={{ duration: 1, ease: "easeInOut" }}
           className="w-full h-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 my-5 place-items-center  lg:px-24"
         >
-          <Cards 
-            cards={PhotosAndTitle} 
+          <Cards
+            cards={PhotosAndTitle}
             onWishlistToggle={handleWishlistToggle}
             isAuthenticated={isAuthenticated}
           />
