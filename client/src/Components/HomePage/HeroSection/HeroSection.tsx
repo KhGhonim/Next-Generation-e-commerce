@@ -11,7 +11,7 @@ function HeroSection() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      sethero(prev => !prev);
+      sethero((prev) => !prev);
     }, 1000);
 
     return () => {
@@ -20,17 +20,18 @@ function HeroSection() {
   }, []);
 
   const handleShopNavigation = () => {
-    navigate('/shop');
+    navigate("/shop");
   };
 
   return (
     <section className="w-full h-screen relative overflow-hidden SectionS">
+      {/* Desktop version with clipPath */}
       <div
         style={{
           clipPath:
             "polygon(0 0, 27% 0, 36% 10%, 64% 10%, 74% 0, 100% 0, 100% 88%, 100% 100%, 85% 100%, 0 100%, 0 100%)",
         }}
-        className="absolute inset-5 z-10 overflow-hidden rounded-4xl bg-gradient-to-t from-gray-200 to-rose-100"
+        className="absolute inset-5 z-10 overflow-hidden rounded-4xl bg-gradient-to-t from-gray-200 to-rose-100 lg:block hidden"
       >
         <div className="absolute top-2/12 lg:top-1/4 lg:flex lg:flex-col lg:-translate-y-1/4 lg:left-1/2 left-0 right-0 lg:-translate-x-1/2 lg:bottom-1/2">
           <motion.div
@@ -154,6 +155,68 @@ function HeroSection() {
             </p>
           </div>
         </motion.div>
+      </div>
+
+      {/* Mobile version without clipPath */}
+      <div className="absolute inset-x-5 inset-y-16 z-10 overflow-hidden rounded-4xl bg-gradient-to-t from-gray-200 to-rose-100 lg:hidden block">
+        <div className="absolute top-2/12 lg:top-1/4 lg:flex lg:flex-col lg:-translate-y-1/4 lg:left-1/2 left-0 right-0 lg:-translate-x-1/2 lg:bottom-1/2">
+          <motion.div
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -100 }}
+            transition={{ duration: 0.5, delay: 1, ease: "easeInOut" }}
+            className=" text-center w-full"
+          >
+            <h1 className="text-3xl md:text-5xl  px-2 lg:text-7xl font-bold stick-bold">
+              Dress Up Every Day
+            </h1>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            transition={{ duration: 0.5, delay: 1.2, ease: "easeInOut" }}
+            className="flex gap-5 z-30 mt-10 justify-center items-center"
+          >
+            <motion.button
+              onClick={handleShopNavigation}
+              className="bg-gray-900 z-50 stick-regular hover:bg-amber-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl"
+              aria-label="Go to shop"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Shop Now
+            </motion.button>
+            <motion.button
+              onClick={handleShopNavigation}
+              className="bg-zinc-500 z-50 stick-regular hover:bg-amber-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl"
+              aria-label="Explore shop"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Explore now
+            </motion.button>
+          </motion.div>
+        </div>
+
+        {/* Hero Section for Mobile Devices */}
+        <motion.img
+          initial={{
+            scale: 1,
+            opacity: 0,
+          }}
+          animate={{
+            scale: 0.8,
+            opacity: 1,
+            transition: {
+              duration: 0.5,
+              ease: "easeInOut",
+            },
+          }}
+          className={` lg:hidden absolute object-cover top-7/12 left-1/2 transform -translate-x-1/2 -translate-y-1/4 transition-all duration-1000 ease-in-out`}
+          src={Herosection}
+          alt="Hero Section"
+        />
       </div>
     </section>
   );

@@ -8,10 +8,13 @@ import AuthRoutes from "./API/Routes/authRoutes.js"
 dotenv.config();
 const app = express();
 
+//environment variables
+const CLIENT_API_URL = process.env.CLIENT_API_URL;
+
 //Middlewares
 app.use(
   cors({
-    origin: "http://localhost:5173", 
+    origin: CLIENT_API_URL, 
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

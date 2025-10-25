@@ -36,7 +36,8 @@ function LevelUP() {
           <img
             src={LevelUPImg}
             className="w-full h-full rounded-4xl  object-cover"
-            alt=""
+            alt="LevelUP"
+            loading="lazy"
           />
         </motion.div>
 
@@ -52,7 +53,8 @@ function LevelUP() {
           <img
             src={LevelUP2}
             className="w-full h-full rounded-4xl  object-cover"
-            alt=""
+            alt="LevelUP 2"
+            loading="lazy"
           />
         </motion.div>
 
@@ -67,7 +69,8 @@ function LevelUP() {
           <img
             src={LevelUP3}
             className="w-full h-full rounded-4xl  object-cover"
-            alt=""
+            alt="LevelUP 3"
+            loading="lazy"
           />
         </motion.div>
         <motion.div

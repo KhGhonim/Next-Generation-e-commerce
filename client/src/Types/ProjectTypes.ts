@@ -22,7 +22,6 @@ export interface PcHeaderProps {
 }
 
 export interface PhoneHeaderProps {
-  IsScrolled: boolean;
   user: User | null;
 }
 

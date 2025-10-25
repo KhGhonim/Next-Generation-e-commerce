@@ -41,7 +41,8 @@ function WorkOut() {
             <img
               className="w-full h-full rounded-4xl object-cover"
               src={right}
-              alt=""
+              alt="WorkOut"
+              loading="lazy"
             />
           </div>
 
@@ -63,7 +64,8 @@ function WorkOut() {
             <img
               className="w-full h-full rounded-4xl object-cover"
               src={mid}
-              alt=""
+              alt="WorkOut"
+              loading="lazy"
             />
           </div>
         </motion.div>
@@ -78,7 +80,8 @@ function WorkOut() {
             <img
               className="w-full h-full rounded-4xl object-cover"
               src={left}
-              alt=""
+              alt="WorkOut Left"
+              loading="lazy"
             />
           </div>
 

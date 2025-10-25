@@ -30,7 +30,7 @@ function Header() {
   return (
     <>
       <PcHeader IsScrolled={IsScrolled} user={user} />
-      <PhoneHeader IsScrolled={IsScrolled} user={user} />
+      <PhoneHeader user={user} />
     </>
   );
 }

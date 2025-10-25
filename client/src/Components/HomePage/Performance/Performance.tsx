@@ -69,7 +69,7 @@ function Performance() {
               transition={{ duration: 0.5, ease: "easeInOut" }}
               src={Performance1}
               className="w-full h-full object-cover rounded-4xl"
-              alt=""
+              alt="Performance 1"
             />
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/4 w-full h-full">
               <h1 className="stick-bold text-base lg:text-5xl w-4/6 px-5 mb-5">
@@ -91,7 +91,7 @@ function Performance() {
               transition={{ duration: 0.5, ease: "easeInOut" }}
               src={Performance2}
               className="w-full h-full object-cover rounded-4xl"
-              alt=""
+              alt="Performance 2"
             />
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/12 w-full h-full">
               <h1 className="stick-bold text-base lg:text-5xl mb-5 w-4/6 px-5">

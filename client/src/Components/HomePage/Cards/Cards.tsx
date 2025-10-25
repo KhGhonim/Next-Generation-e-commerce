@@ -44,7 +44,7 @@ function Cards({ cards, onWishlistToggle, isAuthenticated }: CardsProps) {
             src={card.image}
             loading="lazy"
             className="w-full h-full object-cover rounded-4xl"
-            alt={`${card.title}`}
+            alt={`${card.title} Image`}
           />
 
           <div

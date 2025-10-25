@@ -47,6 +47,7 @@ function ProductGrid({ products, onAddToCart, onAddToWishlist, isLoading }: Prod
               src={product.image}
               alt={product.name}
               className="w-full h-48 sm:h-64 object-cover"
+              loading="lazy"
             />
             {!product.inStock && (
               <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs stick-bold">
