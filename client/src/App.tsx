@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import WebsiteLoading from "./Components/WebsiteLoading/WebsiteLoading";
 import Header from "./Components/Header/Header";
+import Footer from "./Components/Footer/Footer";
 import { AnimatePresence } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 
@@ -15,10 +16,10 @@ function App() {
     setIsClose(true);
     const timer = setTimeout(() => {
       setisLoading(false);
-    }, 8000);
+    }, 4000);
     const timer2 = setTimeout(() => {
       setIsClose(false);
-    }, 7800);
+    }, 3800);
 
     return () => {
       clearTimeout(timer);
@@ -33,11 +34,21 @@ function App() {
       ) : (
         <div
           key="content"
-          className="w-full h-screen relative scroll-smooth bg-zinc-50"
+          className="w-full min-h-screen relative scroll-smooth bg-zinc-50 flex flex-col"
         >
           <Header />
-          <Toaster />
-          <Outlet />
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              style: {
+                zIndex: 10000,
+              },
+            }}
+          />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <Footer />
         </div>
       )}
     </AnimatePresence>

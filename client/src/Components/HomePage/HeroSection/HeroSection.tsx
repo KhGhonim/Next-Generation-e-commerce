@@ -1,14 +1,17 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { avatars } from "../../../Context/Context";
 import Herosection from "../../../assets/Herosection.svg";
 import VEXOVideo from "../../../assets/VEXO - Futuristic E-commerce Website by Muhammad Shofiuddoula for Zeyox Studio on Dribbble.mp4";
 
 function HeroSection() {
   const [hero, sethero] = useState(true);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      sethero(!hero);
+      sethero(prev => !prev);
     }, 1000);
 
     return () => {
@@ -16,8 +19,12 @@ function HeroSection() {
     };
   }, []);
 
+  const handleShopNavigation = () => {
+    navigate('/shop');
+  };
+
   return (
-    <section className="w-full h-dvh SectionS">
+    <section className="w-full h-screen relative overflow-hidden SectionS">
       <div
         style={{
           clipPath:
@@ -44,12 +51,24 @@ function HeroSection() {
             transition={{ duration: 0.5, delay: 1.2, ease: "easeInOut" }}
             className="flex gap-5 z-30 mt-10 justify-center items-center"
           >
-            <button className="bg-gray-900 z-50  stick-regular hover:bg-amber-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl">
+            <motion.button
+              onClick={handleShopNavigation}
+              className="bg-gray-900 z-50 stick-regular hover:bg-amber-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl"
+              aria-label="Go to shop"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               Shop Now
-            </button>
-            <button className="bg-zinc-500 z-50  stick-regular hover:bg-amber-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl">
+            </motion.button>
+            <motion.button
+              onClick={handleShopNavigation}
+              className="bg-zinc-500 z-50 stick-regular hover:bg-amber-800 transition-all duration-300 ease-in-out cursor-pointer text-white px-5 py-2 rounded-4xl"
+              aria-label="Explore shop"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               Explore now
-            </button>
+            </motion.button>
           </motion.div>
         </div>
 
@@ -90,11 +109,11 @@ function HeroSection() {
               ease: "easeInOut",
             },
           }}
-          className={` lg:hidden absolute object-cover top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/4 transition-all duration-1000 ease-in-out`}
+          className={` lg:hidden absolute object-cover top-7/12 left-1/2 transform -translate-x-1/2 -translate-y-1/4 transition-all duration-1000 ease-in-out`}
           src={Herosection}
           alt="Hero Section"
         />
-
+        {/*Hero Section's Video */}
         <motion.div
           initial={{ opacity: 0, y: -100 }}
           animate={{ opacity: 1, y: 0 }}
@@ -110,6 +129,7 @@ function HeroSection() {
             src={VEXOVideo}
           ></video>
         </motion.div>
+        {/* Hero Section's Avatars */}
         <motion.div
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}

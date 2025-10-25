@@ -1,14 +1,29 @@
 export interface PhoneDrawerProps {
   isDrawerOpen: boolean;
   setisDrawerOpen: (value: boolean) => void;
+  user?: User | null;
+}
+
+export interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  zipCode?: string;
+  country?: string;
 }
 
 export interface PcHeaderProps {
   IsScrolled: boolean;
+  user: User | null;
 }
 
 export interface PhoneHeaderProps {
   IsScrolled: boolean;
+  user: User | null;
 }
 
 export interface CardProps {
@@ -18,6 +33,12 @@ export interface CardProps {
     link: string;
     image: string;
     price: number;
+    category: string;
+    rating: number;
+    reviews: number;
+    sizes: string[];
+    colors: string[];
+    description: string;
   }[];
 }
 

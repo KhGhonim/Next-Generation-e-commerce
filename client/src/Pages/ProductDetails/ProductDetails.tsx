@@ -4,7 +4,7 @@ import Tabs from "../../Components/ProductDetails/Tabs/Tabs";
 import Related from "../../Components/ProductDetails/Related/Related";
 
 function ProductDetails() {
-  const [activeTab, setActiveTab] = useState("The Tea ☕");
+  const [activeTab, setActiveTab] = useState("Description");
 
   return (
     <div className="min-h-screen bg-zinc-50 pt-20">

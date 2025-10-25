@@ -2,9 +2,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import Cards from "../Cards/Cards";
 import { PhotosAndTitle } from "../../../Context/Context";
 import { MdOutlineArrowOutward } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { addToWishlist, WishlistItem } from "../../../store/slices/wishlistSlice";
+import toast from "react-hot-toast";
 
 function CardsGrid() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.user);
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -16,9 +23,38 @@ function CardsGrid() {
     },
   };
 
-  return (
+  const handleShopNavigation = () => {
+    navigate('/shop');
+  };
+
+    const handleWishlistToggle = (card: WishlistItem) => {
+    if (!isAuthenticated) {
+      toast.error("Please log in to add items to your wishlist");
+      navigate('/login');
+      return;
+    }
+
+    dispatch(addToWishlist({
+      id: card.id.toString(),
+      name: card.name,
+      price: card.price,
+      image: card.image,
+      category: card.category,
+      brand: 'VEXO',
+      rating: card.rating,
+      reviews: card.reviews,
+      sizes: card.sizes,
+      colors: card.colors,
+      description: card.description,
+      inStock: true,
+    }));
+    
+    toast.success(`${card.name} added to wishlist!`);
+  };
+
+    return (
     <AnimatePresence mode="wait">
-      <section className="w-full pt-20 lg:pt-28  SectionS   !overflow-hidden relative ">
+      <section className="w-full pt-20 lg:pt-28 CardsGrid !overflow-hidden relative ">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -57,17 +93,32 @@ function CardsGrid() {
           transition={{ duration: 1, ease: "easeInOut" }}
           className="w-full h-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 my-5 place-items-center  lg:px-24"
         >
-          <Cards cards={PhotosAndTitle} />
+          <Cards 
+            cards={PhotosAndTitle} 
+            onWishlistToggle={handleWishlistToggle}
+            isAuthenticated={isAuthenticated}
+          />
         </motion.div>
 
         <motion.div className="w-full h-32 flex gap-1.5 group justify-center items-center">
-          <Link
+          <motion.button
+            onClick={handleShopNavigation}
             className="bg-black cursor-pointer text-white px-10 py-3 rounded-3xl font-bold stick-regular"
-            to={"/shop"}
+            aria-label="See all brands in shop"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             See All Brands
-          </Link>
-          <MdOutlineArrowOutward className="bg-black cursor-pointer !text-3xl group-hover:animate-bounce text-white p-1.5  rounded-3xl" />
+          </motion.button>
+          <motion.button
+            onClick={handleShopNavigation}
+            className="bg-black cursor-pointer !text-3xl group-hover:animate-bounce text-white p-1.5 rounded-3xl"
+            aria-label="Go to shop"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <MdOutlineArrowOutward />
+          </motion.button>
         </motion.div>
       </section>
     </AnimatePresence>
