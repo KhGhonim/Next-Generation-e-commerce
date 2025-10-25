@@ -20,8 +20,8 @@ export const protect = async (req, res, next) => {
   let token;
 
   // Check for token in cookies first, then headers
-  if (req.cookies.token) {
-    token = req.cookies.token;
+  if (req.cookies.VexoToken) {
+    token = req.cookies.VexoToken;
   }
 
   if (!token) {

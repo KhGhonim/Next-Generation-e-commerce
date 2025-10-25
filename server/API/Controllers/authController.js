@@ -1,7 +1,8 @@
 import User from "../Models/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../Middleware/auth.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 // Update last login function
 const updateLastLogin = async (userId) => {
   try {
@@ -25,11 +26,11 @@ const sendTokenResponse = (user, statusCode, res) => {
     ),
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
   };
 
   res.status(statusCode)
-    .cookie("token", token, options)
+    .cookie("VexoToken", token, options)
     .json({
       success: true,
       token,
@@ -191,7 +192,7 @@ export const getMe = async (req, res) => {
 // @access  Private
 export const logout = async (req, res) => {
   try {
-    res.cookie("token", "none", {
+    res.cookie("VexoToken", "none", {
       expires: new Date(Date.now() + 10 * 1000),
       httpOnly: true,
     });
