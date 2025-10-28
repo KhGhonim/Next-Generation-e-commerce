@@ -57,7 +57,7 @@ function Profile() {
   }, [checkAuth]);
 
   useEffect(() => {
-    if (user) {
+    if (user && !isEditing && !isEditingBilling) {
       setEditData({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
@@ -76,7 +76,7 @@ function Profile() {
         country: user.country || '',
       });
     }
-  }, [user]);
+  }, [user, isEditing, isEditingBilling]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -98,6 +98,17 @@ function Profile() {
     });
     if (result) {
       setIsEditing(false);
+      // Force refresh form data with updated user data
+      setEditData({
+        firstName: result.firstName || '',
+        lastName: result.lastName || '',
+        email: result.email || '',
+        phone: result.phone || '',
+        address: result.address || '',
+        city: result.city || '',
+        zipCode: result.zipCode || '',
+        country: result.country || '',
+      });
     }
   };
 
@@ -121,6 +132,23 @@ function Profile() {
     const result = await updateBillingAddress(billingData);
     if (result) {
       setIsEditingBilling(false);
+      // Force refresh form data with updated user data
+      setBillingData({
+        phone: result.phone || '',
+        address: result.address || '',
+        city: result.city || '',
+        zipCode: result.zipCode || '',
+        country: result.country || '',
+      });
+      // Also update editData with billing information
+      setEditData(prev => ({
+        ...prev,
+        phone: result.phone || prev.phone,
+        address: result.address || prev.address,
+        city: result.city || prev.city,
+        zipCode: result.zipCode || prev.zipCode,
+        country: result.country || prev.country,
+      }));
     }
   };
 

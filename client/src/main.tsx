@@ -17,10 +17,20 @@ import Cookies from "./Pages/Cookies/Cookies.tsx";
 import HelpCenter from "./Pages/HelpCenter/HelpCenter.tsx";
 import SizeGuide from "./Pages/SizeGuide/SizeGuide.tsx";
 import ShippingInfo from "./Pages/ShippingInfo/ShippingInfo.tsx";
+import Dashboard from "./Pages/Dashboard/Dashboard.tsx";
+import Products from "./Pages/Dashboard/Products.tsx";
+import DashboardLayout from "./Pages/Dashboard/Components/DashboardLayout.tsx";
+import Analytics from "./Pages/Dashboard/Analytics.tsx";
+import SalesTeam from "./Pages/Dashboard/SalesTeam.tsx";
+import Payments from "./Pages/Dashboard/Payments.tsx";
+import Categories from "./Pages/Dashboard/Categories.tsx";
+import Users from "./Pages/Dashboard/Users.tsx";
 import ProtectedRoute from "./Components/ProtectedRoute/ProtectedRoute.tsx";
+import AdminProtectedRoute from "./Components/AdminProtectedRoute/AdminProtectedRoute.tsx";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./store";
+import { Toaster } from "react-hot-toast";
 
 const root = document.getElementById("root");
 
@@ -28,13 +38,35 @@ ReactDOM.createRoot(root!).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <BrowserRouter>
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            style: {
+              zIndex: 10000,
+            },
+          }}
+        />
         <Routes>
           <Route element={<App />}>
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute>
+                  <Wishlist />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/returns" element={<Returns />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/checkout" element={<Checkout />} />
@@ -43,6 +75,22 @@ ReactDOM.createRoot(root!).render(
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/size-guide" element={<SizeGuide />} />
             <Route path="/shipping" element={<ShippingInfo />} />
+            <Route
+              path="/dashboard"
+              element={
+                <AdminProtectedRoute>
+                  <DashboardLayout />
+                </AdminProtectedRoute>
+              }
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="products" element={<Products />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="sales-team" element={<SalesTeam />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="categories" element={<Categories />} />
+              <Route path="users" element={<Users />} />
+            </Route>
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />

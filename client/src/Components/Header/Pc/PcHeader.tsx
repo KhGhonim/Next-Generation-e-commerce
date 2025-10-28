@@ -5,7 +5,7 @@ import { PCHeaderContent } from "../../../Context/Context";
 import { useState, useEffect } from "react";
 import { BiChevronDown } from "react-icons/bi";
 import { PcHeaderProps } from "../../../Types/ProjectTypes";
-import { FaGlobe, FaUserCircle, FaUser, FaSignOutAlt, FaHeart } from "react-icons/fa";
+import { FaGlobe, FaUserCircle, FaUser, FaSignOutAlt, FaHeart, FaThLarge } from "react-icons/fa";
 import SidebarCart from "../../Cart/SidebarCart";
 import { useAppSelector, useAppDispatch } from "../../../store/hooks";
 import { clearUser } from "../../../store/slices/userSlice";
@@ -222,6 +222,18 @@ function PcHeader({ IsScrolled, user }: PcHeaderProps) {
                                 <span>Wishlist</span>
                               </div>
                             </Link>
+                            {user?.role === "admin" && (
+                              <Link
+                                to="/dashboard"
+                                className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-black transition-colors duration-200 text-sm cursor-pointer stick-regular"
+                                onClick={() => setIsAccountDropdownOpen(false)}
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <FaThLarge />
+                                  <span>Dashboard</span>
+                                </div>
+                              </Link>
+                            )}
                             <button
                               onClick={() => {
                                 handleLogout();

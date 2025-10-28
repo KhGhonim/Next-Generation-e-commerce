@@ -221,7 +221,7 @@ export const logout = async (req, res) => {
 // @access  Private
 export const updateProfile = async (req, res) => {
   try {
-    const { firstName, lastName, email } = req.body;
+    const { firstName, lastName, email, phone } = req.body;
     const userId = req.user.userId;
 
     // Check if email is being changed and if it's already taken
@@ -245,6 +245,7 @@ export const updateProfile = async (req, res) => {
         ...(firstName && { firstName }),
         ...(lastName && { lastName }),
         ...(email && { email }),
+        ...(phone !== undefined && { phone }),
       },
       {
         new: true,
@@ -266,9 +267,16 @@ export const updateProfile = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
+        city: user.city,
+        zipCode: user.zipCode,
+        country: user.country,
+        paymentMethods: user.paymentMethods,
         role: user.role,
         isEmailVerified: user.isEmailVerified,
         lastLogin: user.lastLogin,
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {
@@ -375,6 +383,11 @@ export const updateBillingAddress = async (req, res) => {
         city: user.city,
         zipCode: user.zipCode,
         country: user.country,
+        paymentMethods: user.paymentMethods,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+        lastLogin: user.lastLogin,
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {

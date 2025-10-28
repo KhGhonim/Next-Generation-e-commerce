@@ -23,6 +23,7 @@ export interface User {
   city?: string;
   zipCode?: string;
   country?: string;
+  role?: string;
   paymentMethods?: PaymentMethod[];
 }
 

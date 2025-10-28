@@ -3,7 +3,13 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import MongoDB from "./API/Config/MongoDB.js";
-import AuthRoutes from "./API/Routes/authRoutes.js"
+import AuthRoutes from "./API/Routes/authRoutes.js";
+import ProductRoutes from "./API/Routes/productRoutes.js";
+import CategoryRoutes from "./API/Routes/categoryRoutes.js";
+import SalesTeamRoutes from "./API/Routes/salesTeamRoutes.js";
+import PaymentRoutes from "./API/Routes/paymentRoutes.js";
+import AnalyticsRoutes from "./API/Routes/analyticsRoutes.js";
+import UserRoutes from "./API/Routes/userRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -29,7 +35,13 @@ app.get("/", (req, res) => {
   res.send("Welcome to Khaled Ghonim Gateway Server");
 });
 
-app.use("/api", AuthRoutes)
+app.use("/api", AuthRoutes);
+app.use("/api", ProductRoutes);
+app.use("/api", CategoryRoutes);
+app.use("/api", SalesTeamRoutes);
+app.use("/api", PaymentRoutes);
+app.use("/api", AnalyticsRoutes);
+app.use("/api", UserRoutes);
 
 
 // Server Starter 

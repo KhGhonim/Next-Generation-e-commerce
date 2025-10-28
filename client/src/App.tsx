@@ -4,12 +4,14 @@ import WebsiteLoading from "./Components/WebsiteLoading/WebsiteLoading";
 import Header from "./Components/Header/Header";
 import Footer from "./Components/Footer/Footer";
 import { AnimatePresence } from "framer-motion";
-import { Toaster } from "react-hot-toast";
 
 function App() {
   const [isLoading, setisLoading] = useState(false);
   const [IsClose, setIsClose] = useState(false);
   const location = useLocation();
+
+  // Check if current route is dashboard
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
 
   useEffect(() => {
     // Only show loading on initial page load (refresh or first visit)
@@ -30,7 +32,8 @@ function App() {
         clearTimeout(timer2);
       };
     }
-  }, []); // Empty dependency array - only run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run once on mount
 
   return (
     <AnimatePresence>
@@ -41,19 +44,11 @@ function App() {
           key="content"
           className="w-full min-h-screen relative scroll-smooth bg-zinc-50 flex flex-col"
         >
-          <Header />
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              style: {
-                zIndex: 10000,
-              },
-            }}
-          />
-          <main className="flex-1 pb-20 lg:pb-0">
+          {!isDashboardRoute && <Header />}
+          <main className={`flex-1 ${!isDashboardRoute ? 'pb-20 lg:pb-0' : ''}`}>
             <Outlet />
           </main>
-          <Footer />
+          {!isDashboardRoute && <Footer />}
         </div>
       )}
     </AnimatePresence>

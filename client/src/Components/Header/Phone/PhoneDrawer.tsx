@@ -7,7 +7,7 @@ import { CgClose } from "react-icons/cg";
 import { useNavigate } from "react-router-dom";
 import Theme from "./Theme";
 import LanguageComponent from "./language";
-import { FaUserCircle, FaUser, FaSignOutAlt, FaHeart } from "react-icons/fa";
+import { FaUserCircle, FaUser, FaSignOutAlt, FaHeart, FaThLarge } from "react-icons/fa";
 import { useAppDispatch } from "../../../store/hooks";
 import { clearUser } from "../../../store/slices/userSlice";
 import toast from "react-hot-toast";
@@ -154,6 +154,18 @@ function PhoneDrawer({ isDrawerOpen, setisDrawerOpen, user }: PhoneDrawerProps) 
                         <FaHeart className="text-gray-600" />
                         <span>Wishlist</span>
                       </button>
+                      {user?.role === "admin" && (
+                        <button
+                          onClick={() => {
+                            navigate('/dashboard');
+                            setisDrawerOpen(false);
+                          }}
+                          className="w-full flex items-center space-x-3 py-3 px-4 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer stick-regular"
+                        >
+                          <FaThLarge className="text-gray-600" />
+                          <span>Dashboard</span>
+                        </button>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-3 py-3 px-4 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer stick-regular text-red-600"
