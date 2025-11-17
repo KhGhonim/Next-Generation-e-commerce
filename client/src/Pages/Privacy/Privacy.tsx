@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaShieldAlt, FaLock, FaEye, FaUserShield } from "react-icons/fa";
+import SEO from "../../Components/SEO/SEO";
 
 function Privacy() {
+  const location = useLocation();
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -217,7 +220,16 @@ function Privacy() {
   `;
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
+    <>
+      <SEO
+        title="Privacy Policy"
+        description="Learn how VEXO protects your privacy and handles your personal information. Read our comprehensive privacy policy covering data collection, usage, and security."
+        keywords="privacy policy, data protection, privacy, VEXO privacy, personal information"
+        url={`${baseUrl}${location.pathname}`}
+        type="website"
+        tags={["privacy", "data protection", "legal"]}
+      />
+      <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -301,6 +313,7 @@ function Privacy() {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 }
 

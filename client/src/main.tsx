@@ -7,6 +7,9 @@ import Shop from "./Pages/Shop/Shop.tsx";
 import ProductDetails from "./Pages/ProductDetails/ProductDetails.tsx";
 import Login from "./Pages/Auth/Login.tsx";
 import SignUp from "./Pages/Auth/SignUp.tsx";
+import VerifyToken from "./Pages/Auth/VerifyToken.tsx";
+import ForgotPassword from "./Pages/Auth/ForgotPassword.tsx";
+import NewPassword from "./Pages/Auth/NewPassword.tsx";
 import Profile from "./Pages/Profile/Profile.tsx";
 import Checkout from "./Pages/Checkout/Checkout.tsx";
 import Wishlist from "./Pages/Wishlist/Wishlist.tsx";
@@ -29,15 +32,17 @@ import ProtectedRoute from "./Components/ProtectedRoute/ProtectedRoute.tsx";
 import AdminProtectedRoute from "./Components/AdminProtectedRoute/AdminProtectedRoute.tsx";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "./store";
+import { store, persistor } from "./store/store.ts";
 import { Toaster } from "react-hot-toast";
+import { HelmetProvider } from "react-helmet-async";
 
 const root = document.getElementById("root");
 
 ReactDOM.createRoot(root!).render(
-  <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
-      <BrowserRouter>
+  <HelmetProvider>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
         <Toaster 
           position="top-right"
           toastOptions={{
@@ -94,8 +99,12 @@ ReactDOM.createRoot(root!).render(
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/verify-token" element={<VerifyToken />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/new-password" element={<NewPassword />} />
         </Routes>
       </BrowserRouter>
     </PersistGate>
   </Provider>
+  </HelmetProvider>
 );

@@ -1,6 +1,6 @@
-import Product from "../Models/Product.js";
-import Payment from "../Models/Payment.js";
-import User from "../Models/User.js";
+import Product from "../../Models/Product.js";
+import Payment from "../../Models/Payment.js";
+import User from "../../Models/User.js";
 
 export const getAnalytics = async (req, res) => {
   try {

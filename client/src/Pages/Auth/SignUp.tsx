@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaUserAlt, FaLock, FaEnvelope } from "react-icons/fa";
 import { useAuth } from "../../hooks/useAuth";
+import { useAppSelector } from "../../store/hooks";
 import toast from "react-hot-toast";
+import SEO from "../../Components/SEO/SEO";
 
 function SignUp() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
+  const { isAuthenticated } = useAppSelector((state) => state.user);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -16,6 +22,12 @@ function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signup, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -41,7 +53,17 @@ function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <>
+      <SEO
+        title="Sign Up"
+        description="Create a new VEXO account to start shopping. Join thousands of satisfied customers and get access to exclusive deals and fast checkout."
+        keywords="sign up, register, create account, VEXO account, new customer"
+        url={`${baseUrl}${location.pathname}`}
+        type="website"
+        noindex={true}
+        nofollow={true}
+      />
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -267,6 +289,7 @@ function SignUp() {
         </motion.form>
       </motion.div>
     </div>
+    </>
   );
 }
 

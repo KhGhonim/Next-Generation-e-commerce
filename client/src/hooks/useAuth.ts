@@ -300,6 +300,62 @@ export const useAuth = () => {
     }
   };
 
+  const sendVerificationEmail = async () => {
+    dispatch(setLoading(true));
+    try {
+      const response = await fetch(`${API_URL}/api/auth/send-verification-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(result.message || "Verification email sent successfully!");
+        return true;
+      } else {
+        toast.error(result.message || "Failed to send verification email");
+        return false;
+      }
+    } catch (error) {
+      console.error("Send verification email error:", error);
+      toast.error("An error occurred while sending verification email");
+      return false;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const verifyEmail = async (token: string) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await fetch(`${API_URL}/api/auth/verify-email?token=${token}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        dispatch(setUser(result.user));
+        toast.success(result.message || "Email verified successfully!");
+        return result.user;
+      } else {
+        toast.error(result.message || "Failed to verify email");
+        return null;
+      }
+    } catch (error) {
+      console.error("Verify email error:", error);
+      toast.error("An error occurred while verifying email");
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
   return {
     user,
     isLoading,
@@ -313,5 +369,7 @@ export const useAuth = () => {
     addPaymentMethod,
     updatePaymentMethod,
     deletePaymentMethod,
+    sendVerificationEmail,
+    verifyEmail,
   };
 };

@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaUndo, FaClock, FaShieldAlt } from "react-icons/fa";
+import SEO from "../../Components/SEO/SEO";
 
 function Returns() {
+  const location = useLocation();
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -85,7 +88,16 @@ function Returns() {
   `;
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
+    <>
+      <SEO
+        title="Returns & Refunds"
+        description="Learn about VEXO's return and refund policy. Hassle-free returns within 30 days. Find out how to return items, eligible products, and refund processing."
+        keywords="returns, refunds, return policy, VEXO returns, product returns"
+        url={`${baseUrl}${location.pathname}`}
+        type="website"
+        tags={["returns", "refunds", "customer service"]}
+      />
+      <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -168,6 +180,7 @@ function Returns() {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 }
 

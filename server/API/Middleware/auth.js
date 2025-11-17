@@ -3,6 +3,49 @@ import User from "../Models/User.js";
 import dotenv from "dotenv";
 dotenv.config();
 
+// Update last login function
+export const updateLastLogin = async (userId) => {
+  try {
+    await User.findByIdAndUpdate(
+      userId,
+      { lastLogin: new Date() },
+      { new: true, runValidators: false }
+    );
+  } catch (error) {
+    console.error("Error updating last login:", error);
+  }
+};
+
+// Send token response
+export const sendTokenResponse = (user, statusCode, res) => {
+  const token = generateToken(user._id);
+
+  const options = {
+    expires: new Date(
+      Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRE || "7") * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+  };
+
+  res.status(statusCode)
+    .cookie("VexoToken", token, options)
+    .json({
+      success: true,
+      token,
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+        lastLogin: user.lastLogin,
+      },
+    });
+};
+
 // Generate JWT Token
 export const generateToken = (userId) => {
   const secret = process.env.JWT_SECRET;

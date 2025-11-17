@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaTruck, FaClock, FaGlobe, FaShieldAlt, FaMapMarkerAlt } from "react-icons/fa";
+import SEO from "../../Components/SEO/SEO";
 
 function ShippingInfo() {
+  const location = useLocation();
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -82,7 +85,16 @@ function ShippingInfo() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
+    <>
+      <SEO
+        title="Shipping Information"
+        description="Learn about VEXO's shipping options, delivery times, and shipping rates. Find information about international shipping, tracking orders, and delivery policies."
+        keywords="shipping, delivery, shipping rates, tracking, VEXO shipping, delivery times"
+        url={`${baseUrl}${location.pathname}`}
+        type="website"
+        tags={["shipping", "delivery", "tracking"]}
+      />
+      <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -271,6 +283,7 @@ function ShippingInfo() {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 }
 

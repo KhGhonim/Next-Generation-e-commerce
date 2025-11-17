@@ -1,4 +1,4 @@
-import SalesTeam from "../Models/SalesTeam.js";
+import SalesTeam from "../../Models/SalesTeam.js";
 
 export const getSalesTeam = async (req, res) => {
   try {

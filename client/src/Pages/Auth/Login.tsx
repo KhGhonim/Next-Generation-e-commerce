@@ -1,16 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaUserAlt, FaLock } from "react-icons/fa";
 import { useAuth } from "../../hooks/useAuth";
+import { useAppSelector } from "../../store/hooks";
+import SEO from "../../Components/SEO/SEO";
 
 function Login() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
+  const { isAuthenticated } = useAppSelector((state) => state.user);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -25,7 +37,17 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <>
+      <SEO
+        title="Login"
+        description="Sign in to your VEXO account to access your orders, wishlist, and exclusive offers. Secure login for existing customers."
+        keywords="login, sign in, VEXO account, customer login"
+        url={`${baseUrl}${location.pathname}`}
+        type="website"
+        noindex={true}
+        nofollow={true}
+      />
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -55,6 +77,14 @@ function Login() {
           className="mt-8 space-y-6"
           onSubmit={handleSubmit}
         >
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-800 font-medium mb-2 stick-regular">Login Hint:</p>
+            <div className="text-sm text-blue-700 stick-regular space-y-1">
+              <p>Email: <span className="font-mono font-semibold">admin@admin.com</span></p>
+              <p>Password: <span className="font-mono font-semibold">Admin123@</span></p>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="sr-only">
@@ -172,6 +202,7 @@ function Login() {
         </motion.form>
       </motion.div>
     </div>
+    </>
   );
 }
 

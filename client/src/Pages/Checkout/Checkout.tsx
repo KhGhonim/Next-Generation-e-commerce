@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { clearCart } from "../../store/slices/cartSlice";
+import { clearCartAsync } from "../../store/slices/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { FaCreditCard, FaLock, FaArrowLeft } from "react-icons/fa";
 import toast from "react-hot-toast";
@@ -63,12 +63,18 @@ function Checkout() {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Clear cart after successful checkout
-      dispatch(clearCart());
+      await dispatch(clearCartAsync()).unwrap();
       toast.success("Order placed successfully!");
       navigate("/profile");
     } catch (error) {
       console.error("Checkout error:", error);
-      toast.error("Payment failed. Please try again.");
+      const errorMessage =
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+          ? error.message
+          : "Payment failed. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }

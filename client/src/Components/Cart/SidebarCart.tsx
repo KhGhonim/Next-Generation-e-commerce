@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { FaTimes, FaPlus, FaMinus, FaTrash } from "react-icons/fa";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { removeFromCart, updateQuantity } from "../../store/slices/cartSlice";
+import { removeFromCartAsync, updateQuantityAsync } from "../../store/slices/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { CartItem } from "../../store/slices/cartSlice";
+import toast from "react-hot-toast";
 
 interface SidebarCartProps {
   isOpen: boolean;
@@ -15,16 +16,37 @@ function SidebarCart({ isOpen, onClose }: SidebarCartProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleQuantityChange = (item: CartItem, newQuantity: number) => {
+  const handleQuantityChange = async (item: CartItem, newQuantity: number) => {
     if (newQuantity <= 0) {
-      dispatch(removeFromCart(item.cartItemId));
+      await handleRemoveItem(item.cartItemId);
     } else {
-      dispatch(updateQuantity({ cartItemId: item.cartItemId, quantity: newQuantity }));
+      try {
+        await dispatch(updateQuantityAsync({ cartItemId: item.cartItemId, quantity: newQuantity })).unwrap();
+      } catch (error) {
+        const errorMessage =
+          typeof error === "string"
+            ? error
+            : error instanceof Error
+            ? error.message
+            : "Failed to update quantity";
+        toast.error(errorMessage);
+      }
     }
   };
 
-  const handleRemoveItem = (cartItemId: string) => {
-    dispatch(removeFromCart(cartItemId));
+  const handleRemoveItem = async (cartItemId: string) => {
+    try {
+      await dispatch(removeFromCartAsync(cartItemId)).unwrap();
+      toast.success("Item removed from cart");
+    } catch (error) {
+      const errorMessage =
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+          ? error.message
+          : "Failed to remove item";
+      toast.error(errorMessage);
+    }
   };
 
   const handleCheckout = () => {

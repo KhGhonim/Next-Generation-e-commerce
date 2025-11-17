@@ -9,10 +9,11 @@ import { useState } from "react";
 import { IoIosHeartEmpty } from "react-icons/io";
 import { IoHeartSharp } from "react-icons/io5";
 import toast from "react-hot-toast";
+import AddToCartButton from "../../../utils/AddToCartButton";
+import { productImages } from "../../../Context/Context";
 
 function Details({
   isVibing,
-  addToCart,
   quantity,
   setQuantity,
   selectedSize,
@@ -119,11 +120,17 @@ function Details({
         </div>
 
         <div className="flex w-full gap-4">
-          <motion.button
-            className={`flex-1 cursor-pointer bg-black text-white py-4 px-6 rounded-xl font-medium text-lg flex items-center justify-center gap-2`}
-            onClick={addToCart}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <AddToCartButton
+            product={{
+              id: "product-1", // This should come from actual product data
+              name: "Ridley High Waist",
+              price: 36.0,
+              image: productImages[0],
+              quantity: quantity,
+              size: selectedSize,
+            }}
+            className="flex-1 py-4 px-6 text-lg"
+            variant="default"
           >
             {isVibing ? (
               <motion.span
@@ -137,8 +144,8 @@ function Details({
                 <FaFire className={`w-5 h-5 `} />
               </motion.span>
             )}
-            ADD TO CART
-          </motion.button>
+            <span>ADD TO CART</span>
+          </AddToCartButton>
 
           <motion.button
             className="px-4 rounded-full border border-gray-50"

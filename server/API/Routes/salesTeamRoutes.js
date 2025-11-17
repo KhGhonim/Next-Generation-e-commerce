@@ -5,7 +5,7 @@ import {
   createSalesTeamMember,
   updateSalesTeamMember,
   deleteSalesTeamMember
-} from '../Controllers/salesTeamController.js';
+} from '../Controllers/Admin/salesTeamController.js';
 import { protect, authorize } from '../Middleware/auth.js';
 
 const router = express.Router();

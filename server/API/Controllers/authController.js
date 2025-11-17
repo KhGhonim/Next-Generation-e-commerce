@@ -1,50 +1,11 @@
 import User from "../Models/User.js";
 import bcrypt from "bcryptjs";
-import { generateToken } from "../Middleware/auth.js";
+import crypto from "crypto";
+import { updateLastLogin, sendTokenResponse } from "../Middleware/auth.js";
+import sendEmail from "../Utils/sendEmail.js";
+import { sendVerificationEmail } from "../Utils/emailService.js";
 import dotenv from "dotenv";
 dotenv.config();
-// Update last login function
-const updateLastLogin = async (userId) => {
-  try {
-    await User.findByIdAndUpdate(
-      userId,
-      { lastLogin: new Date() },
-      { new: true, runValidators: false }
-    );
-  } catch (error) {
-    console.error("Error updating last login:", error);
-  }
-};
-
-// Send token response
-const sendTokenResponse = (user, statusCode, res) => {
-  const token = generateToken(user._id);
-
-  const options = {
-    expires: new Date(
-      Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRE || "7") * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-  };
-
-  res.status(statusCode)
-    .cookie("VexoToken", token, options)
-    .json({
-      success: true,
-      token,
-      user: {
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        isEmailVerified: user.isEmailVerified,
-        lastLogin: user.lastLogin,
-      },
-    });
-};
 
 // @desc    Register user
 // @route   POST /api/auth/signup
@@ -345,226 +306,362 @@ export const changePassword = async (req, res) => {
   }
 };
 
-// @desc    Update billing address
-// @route   PUT /api/auth/billing
+// @desc    Send verification email
+// @route   POST /api/auth/send-verification-email
 // @access  Private
-export const updateBillingAddress = async (req, res) => {
+export const sendVerificationEmailController = async (req, res) => {
   try {
-    const { phone, address, city, zipCode, country } = req.body;
-
-    const user = await User.findById(req.user.userId);
-
+    const userId = req.user.userId;
+    
+    // Get user with email verification token
+    const user = await User.findById(userId).select("+emailVerificationToken");
+    
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
+ 
+    // Check if already verified
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already verified",
+      });
+    }
 
-    // Update billing address fields
-    if (phone !== undefined) user.phone = phone;
-    if (address !== undefined) user.address = address;
-    if (city !== undefined) user.city = city;
-    if (zipCode !== undefined) user.zipCode = zipCode;
-    if (country !== undefined) user.country = country;
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    user.emailVerificationToken = verificationToken;
+    await user.save({ validateBeforeSave: false });
 
+    // Send verification email
+    const emailResult = await sendVerificationEmail(
+      user.email,
+      verificationToken,
+      user.firstName
+    );
+
+    if (!emailResult.success) {
+      // Clear token if email failed
+      user.emailVerificationToken = undefined;
+      await user.save({ validateBeforeSave: false });
+      
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email. Please try again.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Verification email sent successfully. Please check your inbox.",
+    });
+  } catch (error) {
+    console.error("Send verification email error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while sending verification email",
+    });
+  }
+};
+
+// @desc    Verify email with token
+// @route   GET /api/auth/verify-email
+// @access  Public
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification token is required",
+      });
+    }
+
+    // Find user by verification token
+    const user = await User.findOne({ emailVerificationToken: token }).select("+emailVerificationToken");
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired verification token",
+      });
+    }
+
+    // Check if already verified
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already verified",
+      });
+    }
+
+    // Verify email
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: "Billing address updated successfully",
+      message: "Email verified successfully",
       user: {
         _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        phone: user.phone,
-        address: user.address,
-        city: user.city,
-        zipCode: user.zipCode,
-        country: user.country,
-        paymentMethods: user.paymentMethods,
         role: user.role,
         isEmailVerified: user.isEmailVerified,
         lastLogin: user.lastLogin,
-        createdAt: user.createdAt,
       },
     });
   } catch (error) {
-    console.error("Update billing address error:", error);
+    console.error("Verify email error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server error during email verification",
     });
   }
 };
 
-// @desc    Add payment method
-// @route   POST /api/auth/payment-methods
-// @access  Private
-export const addPaymentMethod = async (req, res) => {
+// @desc    Forgot password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+export const forgotPassword = async (req, res) => {
   try {
-    const { cardNumber, expiryDate, cardHolderName, isDefault } = req.body;
+    const { email } = req.body;
 
     // Validation
-    if (!cardNumber || !expiryDate || !cardHolderName) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Please provide all required payment method fields",
+        message: "Please provide an email address",
       });
     }
 
-    const user = await User.findById(req.user.userId);
+    // Get user with password reset fields
+    const user = await User.findOne({ email }).select("+passwordResetToken +passwordResetExpires");
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(200).json({
+        success: true,
+        message: "If that email exists, a password reset link has been sent",
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Hash token and set to passwordResetToken field
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    // Set token expiration (10 minutes)
+    const resetTokenExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    // Save hashed token and expiration to user
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = new Date(resetTokenExpire);
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset URL
+    const resetUrl = `${process.env.CLIENT_API_URL || "http://localhost:5173"}/new-password?token=${resetToken}&email=${encodeURIComponent(user.email)}`;
+
+    // Email message
+    const message = `
+      <h2>Password Reset Request</h2>
+      <p>You requested a password reset for your VEXO account.</p>
+      <p>Click the link below to reset your password:</p>
+      <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #000; color: #fff; text-decoration: none; border-radius: 5px; margin: 10px 0;">Reset Password</a>
+      <p>This link will expire in 10 minutes.</p>
+      <p>If you didn't request this, please ignore this email.</p>
+      <p>Best regards,<br>VEXO Team</p>
+    `;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "Password Reset Request - VEXO",
+        html: message,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Password reset email sent successfully",
+      });
+    } catch (error) {
+      console.error("Email sending error:", error);
+      // Reset token fields if email fails
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(500).json({
         success: false,
-        message: "User not found",
+        message: "Email could not be sent. Please try again later.",
       });
     }
-
-    // If this is set as default, remove default from other cards
-    if (isDefault) {
-      user.paymentMethods.forEach(method => {
-        method.isDefault = false;
-      });
-    }
-
-    // Add new payment method
-    const newPaymentMethod = {
-      cardNumber: cardNumber.replace(/\s/g, ''), // Remove spaces
-      expiryDate,
-      cardHolderName,
-      isDefault: isDefault || false,
-    };
-
-    user.paymentMethods.push(newPaymentMethod);
-
-    // If this is the first payment method, make it default
-    if (user.paymentMethods.length === 1) {
-      user.paymentMethods[0].isDefault = true;
-    }
-
-    await user.save();
-
-    res.status(201).json({
-      success: true,
-      message: "Payment method added successfully",
-      paymentMethod: newPaymentMethod,
-    });
   } catch (error) {
-    console.error("Add payment method error:", error);
+    console.error("Forgot password error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server error during password reset request",
     });
   }
 };
 
-// @desc    Update payment method
-// @route   PUT /api/auth/payment-methods/:methodId
-// @access  Private
-export const updatePaymentMethod = async (req, res) => {
+// @desc    Reset password
+// @route   PUT /api/auth/reset-password
+// @access  Public
+export const resetPassword = async (req, res) => {
   try {
-    const { methodId } = req.params;
-    const { cardNumber, expiryDate, cardHolderName, isDefault } = req.body;
+    const { token, email, password } = req.body;
 
-    const user = await User.findById(req.user.userId);
+    // Validation
+    if (!token || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide token, email, and new password",
+      });
+    }
+
+    // Get user with password reset fields
+    const user = await User.findOne({ email }).select("+passwordResetToken +passwordResetExpires");
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
-        message: "User not found",
+        message: "Invalid reset token or email",
       });
     }
 
-    const paymentMethod = user.paymentMethods.id(methodId);
-
-    if (!paymentMethod) {
-      return res.status(404).json({
+    // Check if user has a password reset token
+    if (!user.passwordResetToken) {
+      return res.status(400).json({
         success: false,
-        message: "Payment method not found",
+        message: "No password reset token found for this email",
       });
     }
 
-    // Update fields
-    if (cardNumber !== undefined) paymentMethod.cardNumber = cardNumber.replace(/\s/g, '');
-    if (expiryDate !== undefined) paymentMethod.expiryDate = expiryDate;
-    if (cardHolderName !== undefined) paymentMethod.cardHolderName = cardHolderName;
-    if (isDefault !== undefined) {
-      if (isDefault) {
-        // Remove default from other cards
-        user.paymentMethods.forEach(method => {
-          if (method._id.toString() !== methodId) {
-            method.isDefault = false;
-          }
-        });
-      }
-      paymentMethod.isDefault = isDefault;
+    // Hash the token from request to compare with stored token
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    // Check if token matches
+    if (user.passwordResetToken !== hashedToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid reset token",
+      });
     }
 
+    // Check if token has expired
+    if (user.passwordResetExpires < new Date()) {
+      // Clear expired token
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(400).json({
+        success: false,
+        message: "Password reset token has expired. Please request a new one.",
+      });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Update password and clear reset token fields
+    user.password = hashedPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: "Payment method updated successfully",
-      paymentMethod,
+      message: "Password reset successfully. Please login with your new password.",
     });
   } catch (error) {
-    console.error("Update payment method error:", error);
+    console.error("Reset password error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server error during password reset",
     });
   }
 };
 
-// @desc    Delete payment method
-// @route   DELETE /api/auth/payment-methods/:methodId
-// @access  Private
-export const deletePaymentMethod = async (req, res) => {
+// @desc    Verify reset token
+// @route   GET /api/auth/verify-reset-token
+// @access  Public
+export const verifyResetToken = async (req, res) => {
   try {
-    const { methodId } = req.params;
+    const { token, email } = req.query;
 
-    const user = await User.findById(req.user.userId);
+    // Validation
+    if (!token || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide token and email",
+      });
+    }
+
+    // Get user with password reset fields
+    const user = await User.findOne({ email }).select("+passwordResetToken +passwordResetExpires");
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
-        message: "User not found",
+        message: "Invalid reset token or email",
       });
     }
 
-    const paymentMethod = user.paymentMethods.id(methodId);
-
-    if (!paymentMethod) {
-      return res.status(404).json({
+    // Check if user has a password reset token
+    if (!user.passwordResetToken) {
+      return res.status(400).json({
         success: false,
-        message: "Payment method not found",
+        message: "No password reset token found for this email",
       });
     }
 
-    const wasDefault = paymentMethod.isDefault;
-    
-    // Remove the payment method
-    user.paymentMethods.pull(methodId);
+    // Hash the token from request to compare with stored token
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
 
-    // If the deleted method was default and there are other methods, make the first one default
-    if (wasDefault && user.paymentMethods.length > 0) {
-      user.paymentMethods[0].isDefault = true;
+    // Check if token matches
+    if (user.passwordResetToken !== hashedToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid reset token",
+      });
     }
 
-    await user.save();
+    // Check if token has expired
+    if (user.passwordResetExpires < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: "Password reset token has expired",
+      });
+    }
 
     res.status(200).json({
       success: true,
-      message: "Payment method deleted successfully",
+      message: "Reset token is valid",
     });
   } catch (error) {
-    console.error("Delete payment method error:", error);
+    console.error("Verify reset token error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server error during token verification",
     });
   }
 };
+

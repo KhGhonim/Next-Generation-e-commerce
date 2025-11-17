@@ -19,12 +19,18 @@ export interface WishlistItem {
 interface WishlistState {
   items: WishlistItem[];
   totalItems: number;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const initialState: WishlistState = {
   items: [],
   totalItems: 0,
+  isLoading: false,
+  error: null,
 };
+
+
 
 const wishlistSlice = createSlice({
   name: 'wishlist',

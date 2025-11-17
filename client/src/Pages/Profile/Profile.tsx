@@ -13,7 +13,9 @@ import {
   FaPhone,
   FaCalendarAlt,
   FaShieldAlt,
-  FaCog
+  FaCog,
+  FaCheckCircle,
+  FaExclamationCircle
 } from "react-icons/fa";
 import { useAuth } from "../../hooks/useAuth";
 import toast from "react-hot-toast";
@@ -22,7 +24,7 @@ import { PaymentMethod } from "../../Types/ProjectTypes";
 type TabType = 'profile' | 'billing' | 'payment';
 
 function Profile() {
-  const { user, isLoading, logout, checkAuth, updateProfile, updateBillingAddress, addPaymentMethod, updatePaymentMethod, deletePaymentMethod } = useAuth();
+  const { user, isLoading, logout, checkAuth, updateProfile, updateBillingAddress, addPaymentMethod, updatePaymentMethod, deletePaymentMethod, sendVerificationEmail } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('profile');
   const [isEditing, setIsEditing] = useState(false);
@@ -408,9 +410,35 @@ function Profile() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black stick-regular"
                           />
                         ) : (
-                          <div className="flex items-center space-x-2 py-2">
-                            <FaEnvelope className="h-4 w-4 text-gray-400" />
-                            <p className="text-gray-900 stick-regular">{user.email}</p>
+                          <div>
+                            <div className="flex items-center space-x-2 py-2">
+                              <FaEnvelope className="h-4 w-4 text-gray-400" />
+                              <p className="text-gray-900 stick-regular">{user.email}</p>
+                              {user.isEmailVerified ? (
+                                <span className="flex items-center space-x-1 text-green-600 stick-regular">
+                                  <FaCheckCircle className="h-4 w-4" />
+                                  <span className="text-sm">Verified</span>
+                                </span>
+                              ) : (
+                                <span className="flex items-center space-x-1 text-orange-600 stick-regular">
+                                  <FaExclamationCircle className="h-4 w-4" />
+                                  <span className="text-sm">Not Verified</span>
+                                </span>
+                              )}
+                            </div>
+                            {!user.isEmailVerified && (
+                              <button
+                                onClick={async () => {
+                                  await sendVerificationEmail();
+                                }}
+                                disabled={isLoading}
+                                className="mt-2 flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label="Send verification email"
+                              >
+                                <FaEnvelope />
+                                <span className="stick-regular">Verify Email Address</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAnalytics } from '../Controllers/analyticsController.js';
+import { getAnalytics } from '../Controllers/Admin/analyticsController.js';
 import { protect, authorize } from '../Middleware/auth.js';
 
 const router = express.Router();

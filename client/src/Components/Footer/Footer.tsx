@@ -50,8 +50,7 @@ function Footer() {
           <motion.div variants={itemVariants} className="lg:col-span-1">
             <div className="mb-6">
               <Link to="/" className="flex items-center space-x-2">
-                <img src="/VEXO.svg" alt="VEXO" className="h-8 w-auto" />
-                <span className="text-2xl font-bold stick-bold">VEXO</span>
+                <img src="/VEXO.svg" alt="VEXO" className="h-32 w-auto" />
               </Link>
               <p className="text-gray-400 stick-regular mt-4 text-sm leading-relaxed">
                 The ultimate destination for Gen Z fashion. Express yourself with our curated collection of trendy, sustainable, and affordable clothing.

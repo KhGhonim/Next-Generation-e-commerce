@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaFileContract, FaGavel, FaShieldAlt } from "react-icons/fa";
+import SEO from "../../Components/SEO/SEO";
 
 function Terms() {
+  const location = useLocation();
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -155,7 +158,16 @@ function Terms() {
   `;
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
+    <>
+      <SEO
+        title="Terms of Service"
+        description="Read VEXO's Terms of Service. Understand the rules and guidelines for using our e-commerce platform, including user responsibilities and service terms."
+        keywords="terms of service, terms and conditions, VEXO terms, user agreement"
+        url={`${baseUrl}${location.pathname}`}
+        type="website"
+        tags={["terms", "legal", "user agreement"]}
+      />
+      <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -238,6 +250,7 @@ function Terms() {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 }
 

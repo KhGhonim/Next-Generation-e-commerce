@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaRuler, FaTshirt, FaFemale, FaChild, FaShoePrints } from "react-icons/fa";
+import SEO from "../../Components/SEO/SEO";
 
 function SizeGuide() {
+  const location = useLocation();
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -83,7 +86,16 @@ function SizeGuide() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
+    <>
+      <SEO
+        title="Size Guide"
+        description="Find the perfect fit with VEXO's comprehensive size guide. Learn how to measure yourself and choose the right size for clothing, shoes, and accessories."
+        keywords="size guide, sizing, measurements, clothing size, shoe size, VEXO sizes"
+        url={`${baseUrl}${location.pathname}`}
+        type="website"
+        tags={["size guide", "sizing", "measurements"]}
+      />
+      <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -253,6 +265,7 @@ function SizeGuide() {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 }
 

@@ -10,6 +10,7 @@ import SalesTeamRoutes from "./API/Routes/salesTeamRoutes.js";
 import PaymentRoutes from "./API/Routes/paymentRoutes.js";
 import AnalyticsRoutes from "./API/Routes/analyticsRoutes.js";
 import UserRoutes from "./API/Routes/userRoutes.js";
+import CartRoutes from "./API/Routes/cartRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api", SalesTeamRoutes);
 app.use("/api", PaymentRoutes);
 app.use("/api", AnalyticsRoutes);
 app.use("/api", UserRoutes);
+app.use("/api", CartRoutes);
 
 
 // Server Starter 

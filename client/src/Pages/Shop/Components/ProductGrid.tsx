@@ -1,16 +1,16 @@
 import { motion } from "framer-motion";
-import { FaStar, FaShoppingCart, FaEye, FaHeart } from "react-icons/fa";
+import { FaStar, FaEye, FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Product } from "../Shop";
+import AddToCartButton from "../../../utils/AddToCartButton";
 
 interface ProductGridProps {
   products: Product[];
-  onAddToCart: (product: Product) => void;
   onAddToWishlist: (product: Product) => void;
   isLoading: boolean;
 }
 
-function ProductGrid({ products, onAddToCart, onAddToWishlist, isLoading }: ProductGridProps) {
+function ProductGrid({ products, onAddToWishlist, isLoading }: ProductGridProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -103,17 +103,17 @@ function ProductGrid({ products, onAddToCart, onAddToWishlist, isLoading }: Prod
             </div>
 
             <div className="flex space-x-2">
-              <motion.button
-                onClick={() => onAddToCart(product)}
-                disabled={!product.inStock}
-                className="flex-1 bg-black text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 cursor-pointer"
-                aria-label={`Add ${product.name} to cart`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaShoppingCart className="text-sm sm:text-base" />
-                <span className="stick-regular text-sm sm:text-base">Add to Cart</span>
-              </motion.button>
+              <AddToCartButton
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.image,
+                  quantity: 1,
+                }}
+                className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="default"
+              />
               
               <motion.div
                 whileHover={{ scale: 1.05 }}

@@ -2,7 +2,7 @@ import express from 'express';
 import {
   getPayments,
   getPayment
-} from '../Controllers/paymentController.js';
+} from '../Controllers/Admin/paymentController.js';
 import { protect, authorize } from '../Middleware/auth.js';
 
 const router = express.Router();

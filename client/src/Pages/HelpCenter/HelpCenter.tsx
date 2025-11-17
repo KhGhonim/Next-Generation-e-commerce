@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaQuestionCircle, FaSearch, FaPhone, FaEnvelope, FaComments } from "react-icons/fa";
+import SEO from "../../Components/SEO/SEO";
 
 function HelpCenter() {
+  const location = useLocation();
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -95,7 +98,16 @@ function HelpCenter() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
+    <>
+      <SEO
+        title="Help Center"
+        description="Get help and support at VEXO's Help Center. Find answers to frequently asked questions, contact support, and learn about our services."
+        keywords="help center, customer support, FAQ, VEXO support, customer service"
+        url={`${baseUrl}${location.pathname}`}
+        type="website"
+        tags={["help", "support", "FAQ", "customer service"]}
+      />
+      <div className="min-h-screen bg-zinc-50 py-20 px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -223,6 +235,7 @@ function HelpCenter() {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 }
 

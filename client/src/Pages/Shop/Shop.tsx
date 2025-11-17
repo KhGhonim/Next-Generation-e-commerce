@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { addToCart } from "../../store/slices/cartSlice";
+import { useSearchParams, useLocation } from "react-router-dom";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { addToWishlist } from "../../store/slices/wishlistSlice";
 import ShopHeader from "./Components/ShopHeader";
 import toast from "react-hot-toast";
 import ShopSidebar from "./Components/ShopSidebar";
 import ProductGrid from "./Components/ProductGrid";
 import { FaFilter, FaTimes } from "react-icons/fa";
+import SEO from "../../Components/SEO/SEO";
 
 export interface Product {
   id: string;
@@ -125,9 +125,32 @@ const mockProducts: Product[] = [
 
 function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [products] = useState<Product[]>(mockProducts);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(mockProducts);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
+  
+  // Get category from URL params for SEO
+  const category = searchParams.get("category") || "";
+  const brand = searchParams.get("brand") || "";
+  const search = searchParams.get("search") || "";
+  
+  const seoTitle = category 
+    ? `Shop ${category} - VEXO` 
+    : brand 
+    ? `Shop ${brand} Products - VEXO` 
+    : search 
+    ? `Search Results for "${search}" - VEXO` 
+    : "Shop All Products - VEXO";
+    
+  const seoDescription = category 
+    ? `Browse our extensive collection of ${category} at VEXO. Find the best ${category.toLowerCase()} products with competitive prices and fast shipping.`
+    : brand 
+    ? `Discover premium ${brand} products at VEXO. Shop authentic ${brand} items with great deals and excellent customer service.`
+    : search 
+    ? `Search results for "${search}" at VEXO. Find exactly what you're looking for from our wide selection of products.`
+    : "Shop our complete collection of products at VEXO. Browse fashion, electronics, accessories and more with the best prices and fast shipping.";
   const [filters, setFilters] = useState<FilterState>({
     category: searchParams.get("category") || "",
     subcategory: searchParams.get("subcategory") || "",
@@ -214,22 +237,6 @@ function Shop() {
     setFilteredProducts(filtered);
   }, [products, filters]);
 
-  const handleAddToCart = (product: Product) => {
-    if (!isAuthenticated) {
-      toast.error("Please log in to add items to your cart");
-      return;
-    }
-
-    dispatch(addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      image: product.image,
-    }));
-    toast.success(`${product.name} added to cart!`);
-  };
-
   const handleAddToWishlist = (product: Product) => {
     if (!isAuthenticated) {
       toast.error("Please log in to add items to your wishlist");
@@ -271,6 +278,14 @@ function Shop() {
 
   return (
     <div className="min-h-screen bg-zinc-50">
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        keywords={`shop, products, ${category}, ${brand}, ${search}, e-commerce, VEXO, online shopping`}
+        url={`${baseUrl}${location.pathname}${location.search}`}
+        type="website"
+        tags={["shop", "products", "e-commerce", category, brand].filter(Boolean)}
+      />
       <div className="px-4 sm:px-6 lg:px-8 py-8 pt-24 lg:pt-32">
         <ShopHeader 
           totalProducts={filteredProducts.length}
@@ -362,7 +377,6 @@ function Shop() {
           >
             <ProductGrid
               products={filteredProducts}
-              onAddToCart={handleAddToCart}
               onAddToWishlist={handleAddToWishlist}
               isLoading={isLoading}
             />

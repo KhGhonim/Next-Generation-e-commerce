@@ -5,7 +5,7 @@ import { PCHeaderContent } from "../../../Context/Context";
 import { useState, useEffect } from "react";
 import { BiChevronDown } from "react-icons/bi";
 import { PcHeaderProps } from "../../../Types/ProjectTypes";
-import { FaGlobe, FaUserCircle, FaUser, FaSignOutAlt, FaHeart, FaThLarge } from "react-icons/fa";
+import { FaUserCircle, FaUser, FaSignOutAlt, FaHeart, FaThLarge } from "react-icons/fa";
 import SidebarCart from "../../Cart/SidebarCart";
 import { useAppSelector, useAppDispatch } from "../../../store/hooks";
 import { clearUser } from "../../../store/slices/userSlice";
@@ -282,7 +282,7 @@ function PcHeader({ IsScrolled, user }: PcHeaderProps) {
               </span>
             )}
           </button>
-          <button
+          {/* <button
             className={`${
               Location === "/"
                 ? IsScrolled
@@ -292,7 +292,7 @@ function PcHeader({ IsScrolled, user }: PcHeaderProps) {
             } cursor-pointer px-5 p-2 rounded-full  transition-colors stick-regular`}
           >
             <FaGlobe />
-          </button>
+          </button> */}
         </div>
         {!user && (
           <div className="flex space-x-4">

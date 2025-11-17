@@ -1,0 +1,17 @@
+# robots.txt for VEXO E-Commerce
+
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /profile
+Disallow: /wishlist
+Disallow: /checkout
+Disallow: /login
+Disallow: /signup
+
+# Sitemap
+Sitemap: https://vexo.com/sitemap.xml
+
+# Crawl-delay (optional, adjust as needed)
+Crawl-delay: 1
+

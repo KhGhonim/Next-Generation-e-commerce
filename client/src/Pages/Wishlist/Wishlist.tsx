@@ -1,35 +1,18 @@
 import { motion } from "framer-motion";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { removeFromWishlist, WishlistItem } from "../../store/slices/wishlistSlice";
-import { addToCart } from "../../store/slices/cartSlice";
-import { FaHeart, FaShoppingCart, FaTrash, FaEye } from "react-icons/fa";
+import { removeFromWishlist } from "../../store/slices/wishlistSlice";
+import AddToCartButton from "../../utils/AddToCartButton";
+import { FaHeart, FaTrash, FaEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
 function Wishlist() {
   const { items } = useAppSelector((state) => state.wishlist);
-  const { isAuthenticated } = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
 
   const handleRemoveFromWishlist = (itemId: string) => {
     dispatch(removeFromWishlist(itemId));
     toast.success("Item removed from wishlist");
-  };
-
-  const handleAddToCart = (item: WishlistItem) => {
-    if (!isAuthenticated) {
-      toast.error("Please log in to add items to your cart");
-      return;
-    }
-
-    dispatch(addToCart({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      image: item.image,
-    }));
-    toast.success(`${item.name} added to cart!`);
   };
 
 
@@ -138,16 +121,16 @@ function Wishlist() {
                   </div>
 
                   <div className="flex space-x-2">
-                    <motion.button
-                      onClick={() => handleAddToCart(item)}
-                      className="flex-1 bg-black text-white px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2 cursor-pointer"
-                      aria-label={`Add ${item.name} to cart`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <FaShoppingCart className="text-sm" />
-                      <span className="stick-regular text-sm">Add to Cart</span>
-                    </motion.button>
+                    <AddToCartButton
+                      product={{
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        image: item.image,
+                        quantity: 1,
+                      }}
+                      className="flex-1"
+                    />
                     
                     <motion.div
                       whileHover={{ scale: 1.05 }}
