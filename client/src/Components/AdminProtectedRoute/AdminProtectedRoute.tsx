@@ -24,7 +24,6 @@ function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
         navigate("/", { replace: true });
       }
     };
-
     if (!isAuthenticated && !isLoading) {
       verifyAuth();
     } else if (isAuthenticated && user) {
