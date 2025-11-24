@@ -11,6 +11,8 @@ import PaymentRoutes from "./API/Routes/paymentRoutes.js";
 import AnalyticsRoutes from "./API/Routes/analyticsRoutes.js";
 import UserRoutes from "./API/Routes/userRoutes.js";
 import CartRoutes from "./API/Routes/cartRoutes.js";
+import CouponRoutes from "./API/Routes/couponRoutes.js";
+import ContactRoutes from "./API/Routes/contactRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -44,6 +46,8 @@ app.use("/api", PaymentRoutes);
 app.use("/api", AnalyticsRoutes);
 app.use("/api", UserRoutes);
 app.use("/api", CartRoutes);
+app.use("/api", CouponRoutes);
+app.use("/api", ContactRoutes);
 
 
 // Server Starter 

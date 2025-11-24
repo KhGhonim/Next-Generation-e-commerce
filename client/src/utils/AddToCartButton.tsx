@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addToCartAsync, CartItem } from "../store/slices/cartSlice";
 import toast from "react-hot-toast";
@@ -26,19 +25,10 @@ function AddToCartButton({
   children,
   variant = "default",
 }: AddToCartButtonProps) {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.user);
   const { isLoading } = useAppSelector((state) => state.cart);
 
   const handleAddToCart = async () => {
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      toast.error("Please log in to add items to your cart");
-      navigate("/login");
-      return;
-    }
-
     // Prepare cart item
     const cartItem: Omit<CartItem, "cartItemId"> = {
       id: product.id,

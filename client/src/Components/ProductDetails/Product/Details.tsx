@@ -10,7 +10,12 @@ import { IoIosHeartEmpty } from "react-icons/io";
 import { IoHeartSharp } from "react-icons/io5";
 import toast from "react-hot-toast";
 import AddToCartButton from "../../../utils/AddToCartButton";
-import { productImages } from "../../../Context/Context";
+import type { Product as ProductType } from "../../../Pages/Dashboard/types";
+
+interface ProductDetailsProps extends DetailsProps {
+  product: ProductType;
+  gallery: string[];
+}
 
 function Details({
   isVibing,
@@ -19,7 +24,9 @@ function Details({
   selectedSize,
   handleSizeChange,
   HandleCopyToClipboard,
-}: DetailsProps) {
+  product,
+  gallery,
+}: ProductDetailsProps) {
   const [IsLiked, setIsLiked] = useState(false);
 
   const HandleLike = () => {
@@ -45,27 +52,30 @@ function Details({
         </span>
       </div>
 
-      <h1 className="text-4xl font-bold mb-3 font-sans">Ridley High Waist</h1>
+      <h1 className="text-4xl font-bold mb-3 font-sans">{product.name}</h1>
 
       <div className="flex items-center gap-4 mb-4">
-        <span className="text-2xl font-semibold">$36.00</span>
+        <span className="text-2xl font-semibold">${product.price?.toFixed(2)}</span>
         <div className="flex items-center">
-          {[1, 2, 3, 4, 4.5].map((rating, index) => (
+          {[1, 2, 3, 4, 5].map((rating, index) => (
             <BiStar
               key={index}
               className={`w-5 h-5 ${
-                rating <= 4.5 ? "text-yellow-400 fill-current" : "text-gray-300"
+                rating <= (product.rating ?? 0)
+                  ? "text-yellow-400 fill-current"
+                  : "text-gray-300"
               }`}
             />
           ))}
-          <span className="ml-2 text-gray-600 text-sm">(7 reviews)</span>
+          <span className="ml-2 text-gray-600 text-sm">
+            ({product.reviews ?? 0} reviews)
+          </span>
         </div>
       </div>
 
       <p className="text-gray-600 mb-6 text-lg">
-        The ultimate core piece for your aesthetic wardrobe. This
-        vintage-inspired fit gives major clean girl energy while staying comfy
-        enough for your TikTok dance challenges.
+        {product.description ||
+          "Premium design from VEXO. Crafted for comfort, durability, and everyday style."}
       </p>
 
       <div className="mb-6">
@@ -78,7 +88,7 @@ function Details({
           </button>
         </div>
         <div className="flex gap-3">
-          {["XS", "S", "M", "L", "XL"].map((size) => (
+          {(product.sizes && product.sizes.length > 0 ? product.sizes : ["XS", "S", "M", "L", "XL"]).map((size) => (
             <motion.button
               key={size}
               onClick={() => handleSizeChange(size)}
@@ -122,11 +132,11 @@ function Details({
         <div className="flex w-full gap-4">
           <AddToCartButton
             product={{
-              id: "product-1", // This should come from actual product data
-              name: "Ridley High Waist",
-              price: 36.0,
-              image: productImages[0],
-              quantity: quantity,
+              id: product._id || "product",
+              name: product.name,
+              price: product.price,
+              image: gallery[0],
+              quantity,
               size: selectedSize,
             }}
             className="flex-1 py-4 px-6 text-lg"

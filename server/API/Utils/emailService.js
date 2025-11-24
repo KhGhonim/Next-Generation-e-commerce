@@ -32,6 +32,40 @@ transporter.verify(function (error, success) {
 });
 
 
+// Generic email sending function
+export const sendEmail = async (options) => {
+  try {
+    // Check if credentials are available
+    if (!smtpUser || !smtpPass) {
+      return {
+        success: false,
+        error: "SMTP credentials are not configured",
+      };
+    }
+
+    const mailOptions = {
+      from: `${process.env.FROM_NAME || "VEXO"} <${process.env.FROM_EMAIL || smtpUser}>`,
+      to: options.email,
+      subject: options.subject,
+      html: options.html,
+      ...(options.text && { text: options.text }),
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    return {
+      success: true,
+      messageId: info.messageId,
+    };
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+// Send verification email
 export const sendVerificationEmail = async (email, token, firstName) => {
   try {
     // Check if credentials are available
@@ -96,6 +130,81 @@ export const sendVerificationEmail = async (email, token, firstName) => {
     };
   } catch (error) {
     console.error("Error sending verification email:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+// Send password reset email
+export const sendPasswordResetEmail = async (email, resetUrl) => {
+  try {
+    // Check if credentials are available
+    if (!smtpUser || !smtpPass) {
+      return {
+        success: false,
+        error: "SMTP credentials are not configured",
+      };
+    }
+
+    const mailOptions = {
+      from: `${process.env.FROM_NAME || "VEXO"} <${process.env.FROM_EMAIL || smtpUser}>`,
+      to: email,
+      subject: "Password Reset Request - VEXO",
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Password Reset Request</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="color: white; margin: 0;">VEXO</h1>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #333; margin-top: 0;">Password Reset Request</h2>
+            <p>You requested a password reset for your VEXO account.</p>
+            <p>Click the link below to reset your password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="background: #000; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reset Password</a>
+            </div>
+            <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:</p>
+            <p style="color: #667eea; word-break: break-all; font-size: 12px;">${resetUrl}</p>
+            <p style="color: #666; font-size: 14px; margin-top: 30px;">This link will expire in 10 minutes. If you didn't request this, please ignore this email.</p>
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">© ${new Date().getFullYear()} VEXO. All rights reserved.</p>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+        Password Reset Request
+        
+        You requested a password reset for your VEXO account.
+        
+        Click the link below to reset your password:
+        
+        ${resetUrl}
+        
+        This link will expire in 10 minutes. If you didn't request this, please ignore this email.
+        
+        Best regards,
+        VEXO Team
+        
+        © ${new Date().getFullYear()} VEXO. All rights reserved.
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    return {
+      success: true,
+      messageId: info.messageId,
+    };
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
     return {
       success: false,
       error: error.message,

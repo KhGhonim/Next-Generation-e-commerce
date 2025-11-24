@@ -2,13 +2,20 @@ import SmallImages from "./SmallImages";
 import BigImage from "./BigImage";
 import { ImagesProps } from "../../../Types/ProjectTypes";
 
+interface ProductImagesProps extends ImagesProps {
+  images: string[];
+  title: string;
+}
+
 function Images({
   handleNextImage,
   handlePrevImage,
   currentImageIndex,
   setCurrentImageIndex,
   setIsFixed,
-}: ImagesProps) {
+  images,
+  title,
+}: ProductImagesProps) {
   return (
     <div className="relative">
       <BigImage
@@ -16,10 +23,14 @@ function Images({
         handlePrevImage={handlePrevImage}
         handleNextImage={handleNextImage}
         setIsFixed={setIsFixed}
+        images={images}
+        title={title}
       />
       <SmallImages
         setCurrentImageIndex={setCurrentImageIndex}
         currentImageIndex={currentImageIndex}
+        images={images}
+        title={title}
       />
     </div>
   );

@@ -17,17 +17,21 @@ import {
   FaCog,
   FaChevronDown,
   FaUserCircle,
-  FaUserFriends
+  FaUserFriends,
+  FaImages,
+  FaTicketAlt
 } from "react-icons/fa";
 import { useAuth } from "../../../hooks/useAuth";
 
 const navigation = [
   { name: "Overview", path: "/dashboard", icon: FaThLarge },
   { name: "Products", path: "/dashboard/products", icon: FaBoxOpen },
+  { name: "Product Photos", path: "/dashboard/products/photos", icon: FaImages },
   { name: "Analytics", path: "/dashboard/analytics", icon: FaChartLine },
   { name: "Sales Team", path: "/dashboard/sales-team", icon: FaUsers },
   { name: "Payments", path: "/dashboard/payments", icon: FaCreditCard },
   { name: "Categories", path: "/dashboard/categories", icon: FaTags },
+  { name: "Coupons", path: "/dashboard/coupons", icon: FaTicketAlt },
   { name: "Users", path: "/dashboard/users", icon: FaUserFriends },
 ];
 

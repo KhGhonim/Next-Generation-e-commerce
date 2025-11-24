@@ -10,7 +10,7 @@ const generateCartItemId = (productId, size, color) => {
 // @access  Private
 export const getCart = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
 
   let cart = await Cart.findOne({ userId });
 
@@ -47,7 +47,8 @@ export const getCart = async (req, res) => {
 // @access  Private
 export const addToCart = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
+    console.log(userId)
     const { id, name, price, quantity, image, size, color } = req.body;
 
   // Validate required fields
@@ -123,7 +124,7 @@ export const addToCart = async (req, res) => {
 // @access  Private
 export const updateCartItem = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
     const { cartItemId } = req.params;
     const { quantity } = req.body;
 
@@ -184,7 +185,7 @@ export const updateCartItem = async (req, res) => {
 // @access  Private
 export const removeFromCart = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
     const { cartItemId } = req.params;
 
   const cart = await Cart.findOne({ userId });
@@ -237,7 +238,7 @@ export const removeFromCart = async (req, res) => {
 // @access  Private
 export const clearCart = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
 
   const cart = await Cart.findOne({ userId });
 

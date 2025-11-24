@@ -1,12 +1,23 @@
 import { motion } from "framer-motion";
 import { TabsProps } from "../../../Types/ProjectTypes";
 
-function Tabs({ activeTab, setActiveTab }: TabsProps) {
+const defaultMaterials = ["Premium cotton blend", "Machine wash cold", "Lay flat to dry", "Ethically produced"];
+
+function Tabs({ activeTab, setActiveTab, product }: TabsProps) {
+  const materials = product.tags && product.tags.length ? product.tags.slice(0, 4) : defaultMaterials;
+  const sizesToShow = product.sizes && product.sizes.length ? product.sizes : ["XS", "S", "M", "L", "XL"];
+  const colorsToShow = product.colors && product.colors.length ? product.colors : ["Black", "White"];
+  const ratingValue = product.rating ?? 0;
+  const reviewsCount = product.reviews ?? 0;
+  const trendViews = Math.max(25000, Math.round(Math.max(reviewsCount, 10) * 3200));
+
+  const tabs = ["Description", "Reviews & Ratings 🔥"];
+
   return (
     <div className="mt-16">
       <div className="border-b border-gray-200">
         <div className="flex gap-8 flex-wrap">
-          {["Description", "Reviews & Ratings 🔥"].map((tab) => (
+          {tabs.map((tab) => (
             <motion.button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -27,17 +38,15 @@ function Tabs({ activeTab, setActiveTab }: TabsProps) {
           ))}
         </div>
       </div>
+
       <div className="py-8">
         {activeTab === "Description" && (
           <div className="space-y-6">
             <div>
-              <h3 className="font-bold mb-3 text-xl">
-                The Main Character Energy
-              </h3>
+              <h3 className="text-xl font-bold mb-3">{product.name}</h3>
               <p className="text-gray-600 text-lg">
-                This fit is giving period piece protagonist with a modern twist.
-                Perfect for your coffee shop study aesthetic TikToks or that
-                casual OOTD when you want to look effortlessly put together.
+                {product.description ||
+                  "Designed for movement with breathable fabrics, a sculpted fit, and strength-tested seams. Pair it with your daily rotation or dress it up for a night run downtown."}
               </p>
             </div>
 
@@ -46,56 +55,43 @@ function Tabs({ activeTab, setActiveTab }: TabsProps) {
                 <div className="bg-neutral-100 p-5 rounded-xl">
                   <h3 className="font-bold mb-3 text-xl">Material & Care</h3>
                   <ul className="space-y-2 text-gray-600">
-                    <li className="flex items-center gap-2">
-                      <span className="text-black">✓</span> 95% Cotton, 5%
-                      Elastane
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-black">✓</span> Machine wash cold
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-black">✓</span> Tumble dry low
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-black">✓</span> Sustainable
-                      production
-                    </li>
+                    {materials.map((entry) => (
+                      <li key={entry} className="flex items-center gap-2">
+                        <span className="text-black">✓</span> {entry}
+                      </li>
+                    ))}
                   </ul>
                 </div>
                 <div className="bg-neutral-100 p-5 rounded-xl">
                   <h3 className="font-bold mb-3 text-xl">Fit & Sizing</h3>
                   <ul className="space-y-2 text-gray-600">
+                    {sizesToShow.slice(0, 4).map((size) => (
+                      <li key={size} className="flex items-center gap-2">
+                        <span className="text-black">✓</span> Available in {size}
+                      </li>
+                    ))}
                     <li className="flex items-center gap-2">
-                      <span className="text-black">✓</span> High-waisted design
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-black">✓</span> True to size fit
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-black">✓</span> Model wears size S
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-black">✓</span> Model height: 5'9"
+                      <span className="text-black">✓</span> Colors: {colorsToShow.join(", ")}
                     </li>
                   </ul>
                 </div>
               </div>
+
               <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-5 rounded-xl">
-                <h3 className="font-bold mb-3 text-xl">Sustainability Score</h3>
+                <h3 className="font-bold mb-3 text-xl">Community Score</h3>
                 <div className="flex items-center gap-3">
                   <div className="w-2/3 bg-gray-200 rounded-full h-4">
                     <motion.div
                       className="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full"
                       initial={{ width: "0%" }}
-                      animate={{ width: "85%" }}
-                      exit={{ width: "0%" }}
+                      animate={{ width: `${Math.min(100, (ratingValue / 5) * 100)}%` }}
                       transition={{ duration: 1, ease: "easeInOut" }}
-                    ></motion.div>
+                    />
                   </div>
-                  <span className="font-bold">8.5/10</span>
+                  <span className="font-bold">{ratingValue.toFixed(1)}/5</span>
                 </div>
                 <p className="mt-2 text-sm text-gray-600">
-                  Made with ethically sourced materials and low-impact dyes.
+                  Rated by {reviewsCount || "new"} shoppers for comfort, durability, and fit.
                 </p>
               </div>
             </div>
@@ -107,96 +103,20 @@ function Tabs({ activeTab, setActiveTab }: TabsProps) {
             <div className="bg-neutral-100 p-5 rounded-xl">
               <div className="flex justify-between mb-4">
                 <h3 className="font-bold text-xl">Customer Reviews</h3>
-                <div className="flex items-center gap-1">
-                  <span className="text-yellow-400">★★★★★</span>
-                  <span className="text-sm text-gray-600">(24)</span>
+                <div className="flex items-center gap-1 text-sm">
+                  <span className="text-yellow-400 text-lg">
+                    {"★".repeat(Math.round(ratingValue)) || "☆"}
+                  </span>
+                  <span className="text-gray-600">({reviewsCount})</span>
                 </div>
               </div>
-
-              <div className="space-y-4">
-                <div className="border-b border-gray-200 pb-4">
-                  <div className="flex justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src="/api/placeholder/32/32"
-                        alt="User"
-                        className="rounded-full"
-                      />
-                      <p className="font-medium">@fashion_girlie</p>
-                    </div>
-                    <span className="text-yellow-400">★★★★★</span>
-                  </div>
-                  <p className="text-gray-600">
-                    obsessed is an understatement!!! this is literally my
-                    personality now 💅
-                  </p>
-                  <div className="mt-2 flex gap-2">
-                    <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">
-                      Verified Purchase
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      Posted 3 days ago
-                    </span>
-                  </div>
-                </div>
-
-                <div className="border-b border-gray-200 pb-4">
-                  <div className="flex justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src="/api/placeholder/32/32"
-                        alt="User"
-                        className="rounded-full"
-                      />
-                      <p className="font-medium">@rizz_wizard</p>
-                    </div>
-                    <span className="text-yellow-400">
-                      ★★★★<span className="text-gray-300">★</span>
-                    </span>
-                  </div>
-                  <p className="text-gray-600">
-                    fr these go hard with my air forces, the fit is immaculate
-                    no cap
-                  </p>
-                  <div className="mt-2 flex gap-2">
-                    <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">
-                      Verified Purchase
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      Posted 1 week ago
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src="/api/placeholder/32/32"
-                        alt="User"
-                        className="rounded-full"
-                      />
-                      <p className="font-medium">@aesthetic_queen</p>
-                    </div>
-                    <span className="text-yellow-400">★★★★★</span>
-                  </div>
-                  <p className="text-gray-600">
-                    the way these jeans understand the assignment?? literal
-                    slay, 10/10 would recommend to my besties
-                  </p>
-                  <div className="mt-2 flex gap-2">
-                    <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">
-                      Verified Purchase
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      Posted 2 weeks ago
-                    </span>
-                  </div>
-                </div>
-              </div>
-
+              <p className="text-sm text-gray-600">
+                {reviewsCount > 0
+                  ? `Verified buyers rated this ${ratingValue.toFixed(1)} / 5 for quality, comfort, and style.`
+                  : "No reviews yet—be the first to drop your fit check."}
+              </p>
               <button className="w-full mt-4 border border-black py-2 rounded-full font-medium hover:bg-black hover:text-white transition-colors">
-                Read All Reviews
+                {reviewsCount > 0 ? "Read community reviews" : "Leave the first review"}
               </button>
             </div>
 
@@ -205,14 +125,14 @@ function Tabs({ activeTab, setActiveTab }: TabsProps) {
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-4xl">🔥</span>
                 <div>
-                  <div className="text-xl font-bold">142.8M</div>
+                  <div className="text-xl font-bold">{trendViews.toLocaleString()}+</div>
                   <p className="text-sm text-gray-600">
-                    Views on #RidleyHighWaist
+                    Views on #{product.name.replace(/\s+/g, "")}
                   </p>
                 </div>
               </div>
-              <p className="text-sm">
-                As seen on: @emma_chamberlain, @addisonre, @charlidamelio
+              <p className="text-sm text-gray-700">
+                Tag @vexo for a chance to be featured across our socials.
               </p>
             </div>
           </div>

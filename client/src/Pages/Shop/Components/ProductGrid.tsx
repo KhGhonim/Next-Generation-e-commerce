@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 import { FaStar, FaEye, FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { Product } from "../Shop";
+import type { ShopProduct } from "../../../hooks/useProducts";
 import AddToCartButton from "../../../utils/AddToCartButton";
 
 interface ProductGridProps {
-  products: Product[];
-  onAddToWishlist: (product: Product) => void;
+  products: ShopProduct[];
+  onAddToWishlist: (product: ShopProduct) => void;
   isLoading: boolean;
 }
 

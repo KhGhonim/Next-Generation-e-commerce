@@ -1,6 +1,6 @@
+import { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Cards from "../Cards/Cards";
-import { PhotosAndTitle } from "../../../Context/Context";
 import { MdOutlineArrowOutward } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
@@ -10,12 +10,14 @@ import {
   WishlistItem,
 } from "../../../store/slices/wishlistSlice";
 import toast from "react-hot-toast";
+import { useProducts } from "../../../hooks/useProducts";
 
 function CardsGrid() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { isAuthenticated } = useAppSelector((state) => state.user);
   const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
+  const { products, isLoading } = useProducts({ limit: 8 });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -27,6 +29,23 @@ function CardsGrid() {
       },
     },
   };
+
+  const cardsData = useMemo(() => {
+    if (!products.length) return [];
+    return products.slice(0, 8).map((product) => ({
+      id: product.id,
+      title: product.name,
+      link: `/product/${product.id}`,
+      image: product.image,
+      price: product.price,
+      category: product.category || "General",
+      rating: product.rating ?? 0,
+      reviews: product.reviews ?? 0,
+      sizes: product.sizes ?? [],
+      colors: product.colors ?? [],
+      description: product.description || "",
+    }));
+  }, [products]);
 
   const handleShopNavigation = () => {
     navigate("/shop");
@@ -109,11 +128,24 @@ function CardsGrid() {
           transition={{ duration: 1, ease: "easeInOut" }}
           className="w-full h-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 my-5 place-items-center  lg:px-24"
         >
-          <Cards
-            cards={PhotosAndTitle}
-            onWishlistToggle={handleWishlistToggle}
-            isAuthenticated={isAuthenticated}
-          />
+          {isLoading ? (
+            <div className="col-span-full flex justify-center items-center py-16">
+              <div className="relative">
+                <div className="h-12 w-12 border-4 border-zinc-200 border-t-black rounded-full animate-spin" />
+                <div className="absolute inset-0 h-12 w-12 border-4 border-black/10 rounded-full animate-pulse" />
+              </div>
+            </div>
+          ) : cardsData.length > 0 ? (
+            <Cards
+              cards={cardsData}
+              onWishlistToggle={handleWishlistToggle}
+              isAuthenticated={isAuthenticated}
+            />
+          ) : (
+            <div className="col-span-full text-center text-sm text-zinc-500">
+              New arrivals will appear here soon.
+            </div>
+          )}
         </motion.div>
 
         <motion.div className="w-full h-32 flex gap-1.5 group justify-center items-center">

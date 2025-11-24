@@ -5,6 +5,7 @@ import AddToCartButton from "../../utils/AddToCartButton";
 import { FaHeart, FaTrash, FaEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useEffect } from "react";
 
 function Wishlist() {
   const { items } = useAppSelector((state) => state.wishlist);
@@ -15,6 +16,13 @@ function Wishlist() {
     toast.success("Item removed from wishlist");
   };
 
+  // On first amount make sure it scroll smoothly to the top of the page
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 lg:pt-32">

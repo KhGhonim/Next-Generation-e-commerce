@@ -1,3 +1,5 @@
+import type { Product } from "../Pages/Dashboard/types";
+
 export interface PhoneDrawerProps {
   isDrawerOpen: boolean;
   setisDrawerOpen: (value: boolean) => void;
@@ -39,7 +41,7 @@ export interface PhoneHeaderProps {
 
 export interface CardProps {
   cards: {
-    id: number;
+    id: number | string;
     title: string;
     link: string;
     image: string;
@@ -57,6 +59,7 @@ export interface CardProps {
 export interface TabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  product: Product;
 }
 
 export interface DetailsProps {

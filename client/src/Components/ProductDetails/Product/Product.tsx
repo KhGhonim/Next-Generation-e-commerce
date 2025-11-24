@@ -1,12 +1,30 @@
-import { useState } from "react";
-import { productImages } from "../../../Context/Context";
+import { useMemo, useState } from "react";
 import Details from "./Details";
 import Images from "./Images";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Megnifier from "./Megnifier";
+import type { Product as ProductType } from "../../../Pages/Dashboard/types";
 
-function Product() {
+interface ProductComponentProps {
+  product: ProductType;
+}
+
+const defaultGallery = [
+  "https://via.placeholder.com/800x1000.png?text=VEXO",
+  "https://via.placeholder.com/800x1000.png?text=VEXO+2",
+  "https://via.placeholder.com/800x1000.png?text=VEXO+3",
+];
+
+function normalizeImages(images?: string[]) {
+  if (!images || images.length === 0) {
+    return defaultGallery;
+  }
+  return images.filter(Boolean).length ? images : defaultGallery;
+}
+
+function Product({ product }: ProductComponentProps) {
+  const gallery = useMemo(() => normalizeImages(product.images), [product.images]);
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedSize = searchParams.get("size") || "";
   const [quantity, setQuantity] = useState(1);
@@ -16,13 +34,13 @@ function Product() {
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) =>
-      prev === 0 ? productImages.length - 1 : prev - 1
+      prev === 0 ? gallery.length - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) =>
-      prev === productImages.length - 1 ? 0 : prev + 1
+      prev === gallery.length - 1 ? 0 : prev + 1
     );
   };
 
@@ -53,6 +71,8 @@ function Product() {
         setCurrentImageIndex={setCurrentImageIndex}
         handlePrevImage={handlePrevImage}
         setIsFixed={setIsFixed}
+        images={gallery}
+        title={product.name}
       />
 
       {/* Product Details */}
@@ -64,6 +84,8 @@ function Product() {
         selectedSize={selectedSize}
         handleSizeChange={handleSizeChange}
         HandleCopyToClipboard={HandleCopyToClipboard}
+        product={product}
+        gallery={gallery}
       />
 
       <Megnifier

@@ -20,8 +20,11 @@ import Cookies from "./Pages/Cookies/Cookies.tsx";
 import HelpCenter from "./Pages/HelpCenter/HelpCenter.tsx";
 import SizeGuide from "./Pages/SizeGuide/SizeGuide.tsx";
 import ShippingInfo from "./Pages/ShippingInfo/ShippingInfo.tsx";
+import Contact from "./Pages/Contact/Contact.tsx";
 import Dashboard from "./Pages/Dashboard/Dashboard.tsx";
 import Products from "./Pages/Dashboard/Products.tsx";
+import ProductPhotos from "./Pages/Dashboard/ProductPhotos.tsx";
+import Coupons from "./Pages/Dashboard/Coupons.tsx";
 import DashboardLayout from "./Pages/Dashboard/Components/DashboardLayout.tsx";
 import Analytics from "./Pages/Dashboard/Analytics.tsx";
 import SalesTeam from "./Pages/Dashboard/SalesTeam.tsx";
@@ -35,6 +38,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./store/store.ts";
 import { Toaster } from "react-hot-toast";
 import { HelmetProvider } from "react-helmet-async";
+import SWRProvider from "./Components/SWRProvider/SWRProvider";
 
 const root = document.getElementById("root");
 
@@ -42,7 +46,8 @@ ReactDOM.createRoot(root!).render(
   <HelmetProvider>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <BrowserRouter>
+        <SWRProvider>
+          <BrowserRouter>
         <Toaster 
           position="top-right"
           toastOptions={{
@@ -78,6 +83,7 @@ ReactDOM.createRoot(root!).render(
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/cookies" element={<Cookies />} />
             <Route path="/help" element={<HelpCenter />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/size-guide" element={<SizeGuide />} />
             <Route path="/shipping" element={<ShippingInfo />} />
             <Route
@@ -90,10 +96,12 @@ ReactDOM.createRoot(root!).render(
             >
               <Route index element={<Dashboard />} />
               <Route path="products" element={<Products />} />
+              <Route path="products/photos" element={<ProductPhotos />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="sales-team" element={<SalesTeam />} />
               <Route path="payments" element={<Payments />} />
               <Route path="categories" element={<Categories />} />
+              <Route path="coupons" element={<Coupons />} />
               <Route path="users" element={<Users />} />
             </Route>
           </Route>
@@ -103,7 +111,8 @@ ReactDOM.createRoot(root!).render(
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/new-password" element={<NewPassword />} />
         </Routes>
-      </BrowserRouter>
+          </BrowserRouter>
+        </SWRProvider>
     </PersistGate>
   </Provider>
   </HelmetProvider>

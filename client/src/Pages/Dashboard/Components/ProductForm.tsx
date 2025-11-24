@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { FaTimes } from "react-icons/fa";
 import { Product, Category } from "../types";
+import ProductPhotosGrid from "./ProductPhotosGrid";
+import { Link } from "react-router-dom";
 
 interface ProductFormProps {
   product: Product | null;
@@ -11,6 +13,7 @@ interface ProductFormProps {
 }
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
+const PRODUCT_PHOTOS_STORAGE_KEY = "vexo_product_photos";
 
 const defaultProduct: Omit<Product, "_id"> = {
   name: "",
@@ -19,7 +22,7 @@ const defaultProduct: Omit<Product, "_id"> = {
   originalPrice: 0,
   category: "",
   brand: "",
-  images: [""],
+  images: [],
   sizes: [],
   colors: [],
   rating: 0,
@@ -34,13 +37,31 @@ function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
   const [formData, setFormData] = useState<Omit<Product, "_id">>(defaultProduct);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagsInput, setTagsInput] = useState("");
-  const [imagesInput, setImagesInput] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [availablePhotos, setAvailablePhotos] = useState<string[]>([]);
 
   useEffect(() => {
     fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const loadAvailablePhotos = () => {
+      if (typeof window === "undefined") return;
+      try {
+        const stored = localStorage.getItem(PRODUCT_PHOTOS_STORAGE_KEY);
+        setAvailablePhotos(stored ? JSON.parse(stored) : []);
+      } catch (error) {
+        console.error("Failed to load product photos library:", error);
+        setAvailablePhotos([]);
+      }
+    };
+
+    loadAvailablePhotos();
+    const updateListener = () => loadAvailablePhotos();
+    window.addEventListener("productPhotosUpdated", updateListener);
+    return () => window.removeEventListener("productPhotosUpdated", updateListener);
   }, []);
 
   // Predefined options
@@ -55,11 +76,9 @@ function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
     if (product) {
       setFormData(product);
       setTagsInput(product.tags.join(", "));
-      setImagesInput(product.images.join(", "));
     } else {
       setFormData(defaultProduct);
       setTagsInput("");
-      setImagesInput("");
       setSelectedCategoryId("");
     }
   }, [product]);
@@ -151,16 +170,24 @@ function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
     }));
   };
 
-  const handleImagesChange = (value: string) => {
-    setImagesInput(value);
-    setFormData((prev) => ({
-      ...prev,
-      images: value.split(",").map((img) => img.trim()).filter(Boolean),
-    }));
+  const handlePhotoToggle = (photo: string) => {
+    setFormData((prev) => {
+      const images = prev.images.includes(photo)
+        ? prev.images.filter((img) => img !== photo)
+        : [...prev.images, photo];
+      return { ...prev, images };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate that at least one image is uploaded
+    if (!formData.images || formData.images.length === 0) {
+      toast.error("Please upload at least one image");
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -406,19 +433,30 @@ function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
               />
             </div>
 
-            {/* Images */}
-            <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-2">
-                Images (comma-separated URLs) *
-              </label>
-              <input
-                type="text"
-                value={imagesInput}
-                onChange={(e) => handleImagesChange(e.target.value)}
-                required
-                placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                  className="w-full px-4 py-3 border border-zinc-300 rounded-xl outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-white"
-              />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-zinc-700">
+                  Product Media *
+                </label>
+                <Link
+                  to="/dashboard/products/photos"
+                  className="text-sm text-zinc-600 hover:text-black underline cursor-pointer"
+                >
+                  Manage library
+                </Link>
+              </div>
+              {availablePhotos.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-zinc-300 p-4 text-sm text-zinc-500">
+                  No media found. Please upload images in the Product Photos page first.
+                </div>
+              ) : (
+                <ProductPhotosGrid
+                  photos={availablePhotos}
+                  selectable
+                  selectedPhotos={formData.images}
+                  onToggleSelect={handlePhotoToggle}
+                />
+              )}
             </div>
 
             {/* Sizes */}

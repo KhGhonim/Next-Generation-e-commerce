@@ -16,7 +16,23 @@ function Login() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading } = useAuth();
+  const [rememberMe, setRememberMe] = useState(false);
+  const { login, isLoading, checkAuth } = useAuth();
+
+  useEffect(() => {
+    const savedRememberMe = localStorage.getItem("rememberMe");
+    if (savedRememberMe === "true") {
+      setRememberMe(true);
+      // If remember me is enabled, check authentication and redirect if authenticated
+      const checkAuthAndRedirect = async () => {
+          const user = await checkAuth();
+        if (user) {
+          navigate("/", { replace: true });
+        }
+      };
+      checkAuthAndRedirect();
+    }
+  }, [checkAuth, navigate]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -29,6 +45,17 @@ function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleRememberMeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    setRememberMe(isChecked);
+    // Save to localStorage
+    if (isChecked) {
+      localStorage.setItem("rememberMe", "true");
+    } else {
+      localStorage.removeItem("rememberMe");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,9 +178,11 @@ function Login() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
+                checked={rememberMe}
+                onChange={handleRememberMeChange}
+                className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded cursor-pointer"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 stick-regular">
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 stick-regular cursor-pointer">
                 Remember me
               </label>
             </div>

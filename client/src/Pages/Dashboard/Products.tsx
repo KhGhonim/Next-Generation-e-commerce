@@ -3,8 +3,9 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import ProductList from "./Components/ProductList";
 import ProductForm from "./Components/ProductForm";
-import { FaPlus, FaBoxOpen } from "react-icons/fa";
+import { FaPlus, FaBoxOpen, FaImages } from "react-icons/fa";
 import { Product } from "./types";
+import { Link } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -100,16 +101,32 @@ function Products() {
           </h1>
           <p className="text-sm text-zinc-600">Manage your products and inventory</p>
         </div>
-        <motion.button
-          onClick={handleCreateProduct}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-black to-zinc-800 text-white rounded-xl cursor-pointer outline-none shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          aria-label="Add new product"
-        >
-          <FaPlus className="text-lg" />
-          <span className="font-semibold">Add Product</span>
-        </motion.button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <Link
+            to="/dashboard/products/photos"
+            className="w-full sm:w-auto"
+            aria-label="Navigate to product photos page"
+          >
+            <motion.button
+              className="w-full px-6 py-3 border border-zinc-300 text-zinc-800 rounded-lg cursor-pointer outline-none bg-white hover:bg-zinc-50 transition-all font-semibold flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <FaImages className="text-base" />
+              Product Photos
+            </motion.button>
+          </Link>
+          <motion.button
+            onClick={handleCreateProduct}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-black to-zinc-800 text-white rounded-lg cursor-pointer outline-none shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            aria-label="Add new product"
+          >
+            <FaPlus className="text-lg" />
+            <span className="font-semibold">Add Product</span>
+          </motion.button>
+        </div>
       </motion.div>
 
         {/* Product Form Modal */}

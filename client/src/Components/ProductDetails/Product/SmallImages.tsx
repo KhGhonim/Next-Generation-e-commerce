@@ -1,11 +1,15 @@
-import { productImages } from "../../../Context/Context";
 import { motion } from "framer-motion";
 import { SmallImagesProps } from "../../../Types/ProjectTypes";
 
-function SmallImages({ setCurrentImageIndex, currentImageIndex }: SmallImagesProps) {
+function SmallImages({
+  setCurrentImageIndex,
+  currentImageIndex,
+  images,
+  title,
+}: SmallImagesProps & { images: string[]; title: string }) {
   return (
     <div className="grid grid-cols-4 gap-3 mt-4">
-      {productImages.map((img, index) => (
+      {images.map((img, index) => (
         <motion.button
           key={index}
           onClick={() => setCurrentImageIndex(index)}
@@ -14,12 +18,12 @@ function SmallImages({ setCurrentImageIndex, currentImageIndex }: SmallImagesPro
           }`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-        >
-          <img
-            src={img}
-            alt={`Thumbnail ${index + 1}`}
-            className="w-full h-full object-cover"
-          />
+          >
+            <img
+              src={img}
+              alt={`${title} thumbnail ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
         </motion.button>
       ))}
     </div>

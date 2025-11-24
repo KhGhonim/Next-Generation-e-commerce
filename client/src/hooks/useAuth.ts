@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { setUser, clearUser, setLoading } from "../store/slices/userSlice";
+import { syncGuestCartAsync, fetchCartAsync, clearGuestCart, loadGuestCart } from "../store/slices/cartSlice";
 
 interface LoginData {
   email: string;
@@ -20,6 +21,7 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 
 export const useAuth = () => {
   const { user, isLoading, isAuthenticated } = useAppSelector((state) => state.user);
+  const { items: cartItems } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -39,6 +41,24 @@ export const useAuth = () => {
 
       if (response.ok) {
         dispatch(setUser(result.user));
+        
+        // Sync guest cart to database if there are guest items
+        if (cartItems.length > 0) {
+          try {
+            await dispatch(syncGuestCartAsync(cartItems)).unwrap();
+          } catch (error) {
+            console.error("Failed to sync guest cart:", error);
+            // Continue with login even if cart sync fails
+          }
+        } else {
+          // If no guest cart, fetch cart from database
+          try {
+            await dispatch(fetchCartAsync()).unwrap();
+          } catch (error) {
+            console.error("Failed to fetch cart:", error);
+          }
+        }
+        
         toast.success("Login successful!");
         navigate("/");
       } else {
@@ -89,6 +109,9 @@ export const useAuth = () => {
       });
 
       if (response.ok) {
+        // Clear cart and load guest cart from localStorage
+        dispatch(clearGuestCart());
+        dispatch(loadGuestCart());
         dispatch(clearUser());
         toast.success("Logged out successfully!");
         navigate("/login");
@@ -113,9 +136,19 @@ export const useAuth = () => {
       if (response.ok) {
         const result = await response.json();
         dispatch(setUser(result.user));
+        
+        // Fetch cart from database for authenticated user
+        try {
+          await dispatch(fetchCartAsync()).unwrap();
+        } catch (error) {
+          console.error("Failed to fetch cart:", error);
+        }
+        
         return result.user;
       } else {
         dispatch(clearUser());
+        // Load guest cart if user is not authenticated
+        dispatch(loadGuestCart());
         return null;
       }
     } catch (error) {

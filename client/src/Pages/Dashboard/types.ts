@@ -60,3 +60,24 @@ export interface DashboardUser {
   lastLogin?: string;
   createdAt?: string;
 }
+
+export type CouponCategory = "global" | "product";
+
+export type CouponDiscountType = "percentage" | "fixed";
+
+export interface Coupon {
+  _id?: string;
+  name: string;
+  code: string;
+  description?: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  category: CouponCategory;
+  productId?: string;
+  userLimit: number;
+  globalLimit: number;
+  minimumOrderValue?: number;
+  startsAt?: string;
+  expiresAt?: string;
+  isActive: boolean;
+}

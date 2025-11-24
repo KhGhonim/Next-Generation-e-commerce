@@ -1,7 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
+const GUEST_CART_KEY = 'vexo_guest_cart';
 
 export interface CartItem {
   id: string;
@@ -24,15 +25,6 @@ interface CartState {
   error: string | null;
 }
 
-const initialState: CartState = {
-  items: [],
-  totalItems: 0,
-  uniqueItems: 0,
-  totalPrice: 0,
-  isLoading: false,
-  error: null,
-};
-
 // Helper function to generate unique cart item ID
 const generateCartItemId = (id: string, size?: string, color?: string): string => {
   return `${id}-${size || 'no-size'}-${color || 'no-color'}`;
@@ -46,20 +38,125 @@ const recalculateTotals = (items: CartItem[]) => {
   return { totalItems, uniqueItems, totalPrice };
 };
 
-// Thunk to add item to cart with backend sync
+// LocalStorage helpers for guest cart
+const saveGuestCartToStorage = (items: CartItem[]) => {
+  try {
+    localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error('Failed to save guest cart to localStorage:', error);
+  }
+};
+
+const loadGuestCartFromStorage = (): CartItem[] => {
+  try {
+    const stored = localStorage.getItem(GUEST_CART_KEY);
+    if (stored) {
+      return JSON.parse(stored) as CartItem[];
+    }
+  } catch (error) {
+    console.error('Failed to load guest cart from localStorage:', error);
+  }
+  return [];
+};
+
+const clearGuestCartFromStorage = () => {
+  try {
+    localStorage.removeItem(GUEST_CART_KEY);
+  } catch (error) {
+    console.error('Failed to clear guest cart from localStorage:', error);
+  }
+};
+
+// Initialize state with guest cart from localStorage
+const guestCartItems = loadGuestCartFromStorage();
+const initialTotals = recalculateTotals(guestCartItems);
+
+const initialState: CartState = {
+  items: guestCartItems,
+  totalItems: initialTotals.totalItems,
+  uniqueItems: initialTotals.uniqueItems,
+  totalPrice: initialTotals.totalPrice,
+  isLoading: false,
+  error: null,
+};
+
+// Thunk to sync guest cart to database when user logs in
+export const syncGuestCartAsync = createAsyncThunk(
+  'cart/syncGuestCartAsync',
+  async (guestItems: CartItem[], { getState, rejectWithValue }) => {
+    const state = getState() as RootState;
+    const { isAuthenticated, user } = state.user;
+
+    if (!isAuthenticated || !user) {
+      return rejectWithValue('User not authenticated');
+    }
+
+    try {
+      // Add each guest item to the database cart
+      const syncPromises = guestItems.map((item) =>
+        fetch(`${API_URL}/api/cart`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+            size: item.size,
+            color: item.color,
+            userId: user._id,
+          }),
+        })
+      );
+
+      await Promise.all(syncPromises);
+
+      // Fetch the updated cart from database
+      const response = await fetch(`${API_URL}/api/cart`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch cart after sync');
+      }
+
+      const result = await response.json();
+      return result.cartItems || result.items || [];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sync guest cart';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Thunk to add item to cart (handles both guest and authenticated)
 export const addToCartAsync = createAsyncThunk(
   'cart/addToCartAsync',
   async (item: Omit<CartItem, 'cartItemId'>, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
     const { isAuthenticated, user } = state.user;
 
-    // If not authenticated, return error (navigation handled by button component)
+    const cartItemId = generateCartItemId(item.id, item.size, item.color);
+    const cartItem: CartItem = {
+      ...item,
+      cartItemId,
+    };
+
+    // Guest user: add to local state (will be handled by reducer)
     if (!isAuthenticated || !user) {
-      return rejectWithValue('User not authenticated');
+      return { type: 'guest', item: cartItem };
     }
 
+    // Authenticated user: save to backend
     try {
-      // Save to backend
       const response = await fetch(`${API_URL}/api/cart`, {
         method: 'POST',
         headers: {
@@ -78,8 +175,7 @@ export const addToCartAsync = createAsyncThunk(
       }
 
       const result = await response.json();
-      // Backend should return the updated cart items
-      return result.cartItems || result.items || result;
+      return { type: 'authenticated', items: result.cartItems || result.items || result };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to add item to cart';
       return rejectWithValue(errorMessage);
@@ -87,17 +183,19 @@ export const addToCartAsync = createAsyncThunk(
   }
 );
 
-// Thunk to remove item from cart with backend sync
+// Thunk to remove item from cart (handles both guest and authenticated)
 export const removeFromCartAsync = createAsyncThunk(
   'cart/removeFromCartAsync',
   async (cartItemId: string, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
     const { isAuthenticated, user } = state.user;
 
+    // Guest user: remove from local state (will be handled by reducer)
     if (!isAuthenticated || !user) {
-      return rejectWithValue('User not authenticated');
+      return { type: 'guest', cartItemId };
     }
 
+    // Authenticated user: remove from backend
     try {
       const response = await fetch(`${API_URL}/api/cart/${cartItemId}`, {
         method: 'DELETE',
@@ -113,8 +211,7 @@ export const removeFromCartAsync = createAsyncThunk(
       }
 
       const result = await response.json();
-      // Backend should return the updated cart items
-      return result.cartItems || result.items || result;
+      return { type: 'authenticated', items: result.cartItems || result.items || result };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to remove item from cart';
       return rejectWithValue(errorMessage);
@@ -122,17 +219,19 @@ export const removeFromCartAsync = createAsyncThunk(
   }
 );
 
-// Thunk to update quantity with backend sync
+// Thunk to update quantity (handles both guest and authenticated)
 export const updateQuantityAsync = createAsyncThunk(
   'cart/updateQuantityAsync',
   async ({ cartItemId, quantity }: { cartItemId: string; quantity: number }, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
     const { isAuthenticated, user } = state.user;
 
+    // Guest user: update local state (will be handled by reducer)
     if (!isAuthenticated || !user) {
-      return rejectWithValue('User not authenticated');
+      return { type: 'guest', cartItemId, quantity };
     }
 
+    // Authenticated user: update in backend
     try {
       const response = await fetch(`${API_URL}/api/cart/${cartItemId}`, {
         method: 'PUT',
@@ -152,8 +251,7 @@ export const updateQuantityAsync = createAsyncThunk(
       }
 
       const result = await response.json();
-      // Backend should return the updated cart items
-      return result.cartItems || result.items || result;
+      return { type: 'authenticated', items: result.cartItems || result.items || result };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to update quantity';
       return rejectWithValue(errorMessage);
@@ -161,17 +259,19 @@ export const updateQuantityAsync = createAsyncThunk(
   }
 );
 
-// Thunk to clear cart with backend sync
+// Thunk to clear cart (handles both guest and authenticated)
 export const clearCartAsync = createAsyncThunk(
   'cart/clearCartAsync',
   async (_, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
     const { isAuthenticated, user } = state.user;
 
+    // Guest user: clear local state (will be handled by reducer)
     if (!isAuthenticated || !user) {
-      return rejectWithValue('User not authenticated');
+      return { type: 'guest' };
     }
 
+    // Authenticated user: clear from backend
     try {
       const response = await fetch(`${API_URL}/api/cart/clear`, {
         method: 'DELETE',
@@ -189,7 +289,7 @@ export const clearCartAsync = createAsyncThunk(
         throw new Error(error.message || 'Failed to clear cart');
       }
 
-      return { items: [] };
+      return { type: 'authenticated', items: [] };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to clear cart';
       return rejectWithValue(errorMessage);
@@ -197,7 +297,7 @@ export const clearCartAsync = createAsyncThunk(
   }
 );
 
-// Thunk to fetch cart from backend
+// Thunk to fetch cart from backend (only for authenticated users)
 export const fetchCartAsync = createAsyncThunk(
   'cart/fetchCartAsync',
   async (_, { getState, rejectWithValue }) => {
@@ -223,8 +323,7 @@ export const fetchCartAsync = createAsyncThunk(
       }
 
       const result = await response.json();
-      // Backend should return the cart items
-      return result.cartItems || result.items || result;
+      return result.cartItems || result.items || [];
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch cart';
       return rejectWithValue(errorMessage);
@@ -235,8 +334,112 @@ export const fetchCartAsync = createAsyncThunk(
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
-  reducers: {},
+  reducers: {
+    // Guest cart operations
+    addGuestItem: (state, action: PayloadAction<CartItem>) => {
+      const newItem = action.payload;
+      const existingItem = state.items.find(item => item.cartItemId === newItem.cartItemId);
+
+      if (existingItem) {
+        existingItem.quantity += newItem.quantity;
+      } else {
+        state.items.push(newItem);
+      }
+
+      const totals = recalculateTotals(state.items);
+      state.totalItems = totals.totalItems;
+      state.uniqueItems = totals.uniqueItems;
+      state.totalPrice = totals.totalPrice;
+
+      // Save to localStorage
+      saveGuestCartToStorage(state.items);
+    },
+    removeGuestItem: (state, action: PayloadAction<string>) => {
+      state.items = state.items.filter(item => item.cartItemId !== action.payload);
+      const totals = recalculateTotals(state.items);
+      state.totalItems = totals.totalItems;
+      state.uniqueItems = totals.uniqueItems;
+      state.totalPrice = totals.totalPrice;
+
+      // Save to localStorage
+      saveGuestCartToStorage(state.items);
+    },
+    updateGuestQuantity: (state, action: PayloadAction<{ cartItemId: string; quantity: number }>) => {
+      const { cartItemId, quantity } = action.payload;
+      const item = state.items.find(item => item.cartItemId === cartItemId);
+      
+      if (item) {
+        if (quantity <= 0) {
+          state.items = state.items.filter(item => item.cartItemId !== cartItemId);
+        } else {
+          item.quantity = quantity;
+        }
+      }
+
+      const totals = recalculateTotals(state.items);
+      state.totalItems = totals.totalItems;
+      state.uniqueItems = totals.uniqueItems;
+      state.totalPrice = totals.totalPrice;
+
+      // Save to localStorage
+      saveGuestCartToStorage(state.items);
+    },
+    clearGuestCart: (state) => {
+      state.items = [];
+      state.totalItems = 0;
+      state.uniqueItems = 0;
+      state.totalPrice = 0;
+
+      // Clear localStorage
+      clearGuestCartFromStorage();
+    },
+    loadGuestCart: (state) => {
+      const guestItems = loadGuestCartFromStorage();
+      state.items = guestItems;
+      const totals = recalculateTotals(guestItems);
+      state.totalItems = totals.totalItems;
+      state.uniqueItems = totals.uniqueItems;
+      state.totalPrice = totals.totalPrice;
+    },
+    setCartItems: (state, action: PayloadAction<CartItem[]>) => {
+      state.items = action.payload;
+      const totals = recalculateTotals(action.payload);
+      state.totalItems = totals.totalItems;
+      state.uniqueItems = totals.uniqueItems;
+      state.totalPrice = totals.totalPrice;
+    },
+  },
   extraReducers: (builder) => {
+    // Sync guest cart
+    builder
+      .addCase(syncGuestCartAsync.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(syncGuestCartAsync.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        
+        if (Array.isArray(action.payload)) {
+          state.items = action.payload.map((item: Partial<CartItem>) => ({
+            ...item,
+            cartItemId: item.cartItemId || generateCartItemId(item.id || '', item.size, item.color),
+          })) as CartItem[];
+        }
+        
+        const totals = recalculateTotals(state.items);
+        state.totalItems = totals.totalItems;
+        state.uniqueItems = totals.uniqueItems;
+        state.totalPrice = totals.totalPrice;
+
+        // Clear guest cart from localStorage after sync
+        clearGuestCartFromStorage();
+      })
+      .addCase(syncGuestCartAsync.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
     // Add to cart
     builder
       .addCase(addToCartAsync.pending, (state) => {
@@ -246,42 +449,43 @@ const cartSlice = createSlice({
       .addCase(addToCartAsync.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        
-        // Update items from backend response
-        if (Array.isArray(action.payload)) {
-          state.items = action.payload.map((item: Partial<CartItem>) => ({
-            ...item,
-            cartItemId: item.cartItemId || generateCartItemId(item.id || '', item.size, item.color),
-          })) as CartItem[];
-        } else {
-          // If backend returns single item, add/update it
-          const newItem = action.payload as Partial<CartItem>;
-          if (newItem.id) {
-            const cartItemId = generateCartItemId(newItem.id, newItem.size, newItem.color);
-            const existingItem = state.items.find(item => item.cartItemId === cartItemId);
-            
-            if (existingItem) {
-              existingItem.quantity += newItem.quantity || 1;
-            } else {
-              state.items.push({
-                id: newItem.id,
-                name: newItem.name || '',
-                price: newItem.price || 0,
-                quantity: newItem.quantity || 1,
-                image: newItem.image || '',
-                size: newItem.size,
-                color: newItem.color,
-                cartItemId,
-              });
+
+        if (action.payload && 'type' in action.payload) {
+          if (action.payload.type === 'guest' && 'item' in action.payload) {
+            // Guest: add to local state
+            const newItem = action.payload.item;
+            if (newItem) {
+              const existingItem = state.items.find(item => item.cartItemId === newItem.cartItemId);
+
+              if (existingItem) {
+                existingItem.quantity += newItem.quantity;
+              } else {
+                state.items.push(newItem);
+              }
             }
+
+            const totals = recalculateTotals(state.items);
+            state.totalItems = totals.totalItems;
+            state.uniqueItems = totals.uniqueItems;
+            state.totalPrice = totals.totalPrice;
+
+            // Save to localStorage
+            saveGuestCartToStorage(state.items);
+          } else if (action.payload.type === 'authenticated' && 'items' in action.payload) {
+            // Authenticated: update from backend response
+            if (Array.isArray(action.payload.items)) {
+              state.items = action.payload.items.map((item: Partial<CartItem>) => ({
+                ...item,
+                cartItemId: item.cartItemId || generateCartItemId(item.id || '', item.size, item.color),
+              })) as CartItem[];
+            }
+
+            const totals = recalculateTotals(state.items);
+            state.totalItems = totals.totalItems;
+            state.uniqueItems = totals.uniqueItems;
+            state.totalPrice = totals.totalPrice;
           }
         }
-        
-        // Recalculate totals
-        const totals = recalculateTotals(state.items);
-        state.totalItems = totals.totalItems;
-        state.uniqueItems = totals.uniqueItems;
-        state.totalPrice = totals.totalPrice;
       })
       .addCase(addToCartAsync.rejected, (state, action) => {
         state.isLoading = false;
@@ -297,25 +501,33 @@ const cartSlice = createSlice({
       .addCase(removeFromCartAsync.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        
-        // Update items from backend response
-        if (Array.isArray(action.payload)) {
-          state.items = action.payload.map((item: Partial<CartItem>) => ({
-            ...item,
-            cartItemId: item.cartItemId || generateCartItemId(item.id || '', item.size, item.color),
-          })) as CartItem[];
-        } else {
-          // If backend confirms removal, filter out the item
-          // This is a fallback if backend doesn't return updated items
-          // The cartItemId should be passed in the action payload
-          state.items = state.items.filter(item => item.cartItemId !== action.meta.arg);
+
+        if (action.payload && 'type' in action.payload) {
+          if (action.payload.type === 'guest' && 'cartItemId' in action.payload) {
+            // Guest: remove from local state
+            state.items = state.items.filter(item => item.cartItemId !== action.payload.cartItemId);
+            const totals = recalculateTotals(state.items);
+            state.totalItems = totals.totalItems;
+            state.uniqueItems = totals.uniqueItems;
+            state.totalPrice = totals.totalPrice;
+
+            // Save to localStorage
+            saveGuestCartToStorage(state.items);
+          } else if (action.payload.type === 'authenticated' && 'items' in action.payload) {
+            // Authenticated: update from backend response
+            if (Array.isArray(action.payload.items)) {
+              state.items = action.payload.items.map((item: Partial<CartItem>) => ({
+                ...item,
+                cartItemId: item.cartItemId || generateCartItemId(item.id || '', item.size, item.color),
+              })) as CartItem[];
+            }
+
+            const totals = recalculateTotals(state.items);
+            state.totalItems = totals.totalItems;
+            state.uniqueItems = totals.uniqueItems;
+            state.totalPrice = totals.totalPrice;
+          }
         }
-        
-        // Recalculate totals
-        const totals = recalculateTotals(state.items);
-        state.totalItems = totals.totalItems;
-        state.uniqueItems = totals.uniqueItems;
-        state.totalPrice = totals.totalPrice;
       })
       .addCase(removeFromCartAsync.rejected, (state, action) => {
         state.isLoading = false;
@@ -331,27 +543,45 @@ const cartSlice = createSlice({
       .addCase(updateQuantityAsync.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        
-        // Update items from backend response
-        if (Array.isArray(action.payload)) {
-          state.items = action.payload.map((item: Partial<CartItem>) => ({
-            ...item,
-            cartItemId: item.cartItemId || generateCartItemId(item.id || '', item.size, item.color),
-          })) as CartItem[];
-        } else {
-          // If backend returns single item, update it
-          const updatedItem = action.payload as Partial<CartItem>;
-          const item = state.items.find(item => item.cartItemId === action.meta.arg.cartItemId);
-          if (item) {
-            item.quantity = updatedItem.quantity || action.meta.arg.quantity;
+
+        if (action.payload && 'type' in action.payload) {
+          if (action.payload.type === 'guest' && 'cartItemId' in action.payload && 'quantity' in action.payload) {
+            // Guest: update local state
+            const { cartItemId, quantity } = action.payload;
+            if (quantity !== undefined) {
+              const item = state.items.find(item => item.cartItemId === cartItemId);
+              
+              if (item) {
+                if (quantity <= 0) {
+                  state.items = state.items.filter(item => item.cartItemId !== cartItemId);
+                } else {
+                  item.quantity = quantity;
+                }
+              }
+            }
+
+            const totals = recalculateTotals(state.items);
+            state.totalItems = totals.totalItems;
+            state.uniqueItems = totals.uniqueItems;
+            state.totalPrice = totals.totalPrice;
+
+            // Save to localStorage
+            saveGuestCartToStorage(state.items);
+          } else if (action.payload.type === 'authenticated' && 'items' in action.payload) {
+            // Authenticated: update from backend response
+            if (Array.isArray(action.payload.items)) {
+              state.items = action.payload.items.map((item: Partial<CartItem>) => ({
+                ...item,
+                cartItemId: item.cartItemId || generateCartItemId(item.id || '', item.size, item.color),
+              })) as CartItem[];
+            }
+
+            const totals = recalculateTotals(state.items);
+            state.totalItems = totals.totalItems;
+            state.uniqueItems = totals.uniqueItems;
+            state.totalPrice = totals.totalPrice;
           }
         }
-        
-        // Recalculate totals
-        const totals = recalculateTotals(state.items);
-        state.totalItems = totals.totalItems;
-        state.uniqueItems = totals.uniqueItems;
-        state.totalPrice = totals.totalPrice;
       })
       .addCase(updateQuantityAsync.rejected, (state, action) => {
         state.isLoading = false;
@@ -364,13 +594,28 @@ const cartSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(clearCartAsync.fulfilled, (state) => {
+      .addCase(clearCartAsync.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        state.items = [];
-        state.totalItems = 0;
-        state.uniqueItems = 0;
-        state.totalPrice = 0;
+
+        if (action.payload && 'type' in action.payload) {
+          if (action.payload.type === 'guest') {
+            // Guest: clear local state
+            state.items = [];
+            state.totalItems = 0;
+            state.uniqueItems = 0;
+            state.totalPrice = 0;
+
+            // Clear localStorage
+            clearGuestCartFromStorage();
+          } else if (action.payload.type === 'authenticated') {
+            // Authenticated: clear from backend response
+            state.items = [];
+            state.totalItems = 0;
+            state.uniqueItems = 0;
+            state.totalPrice = 0;
+          }
+        }
       })
       .addCase(clearCartAsync.rejected, (state, action) => {
         state.isLoading = false;
@@ -387,7 +632,6 @@ const cartSlice = createSlice({
         state.isLoading = false;
         state.error = null;
         
-        // Update items from backend response
         if (Array.isArray(action.payload)) {
           state.items = action.payload.map((item: Partial<CartItem>) => ({
             ...item,
@@ -395,7 +639,6 @@ const cartSlice = createSlice({
           })) as CartItem[];
         }
         
-        // Recalculate totals
         const totals = recalculateTotals(state.items);
         state.totalItems = totals.totalItems;
         state.uniqueItems = totals.uniqueItems;
@@ -408,4 +651,5 @@ const cartSlice = createSlice({
   },
 });
 
+export const { addGuestItem, removeGuestItem, updateGuestQuantity, clearGuestCart, loadGuestCart, setCartItems } = cartSlice.actions;
 export default cartSlice.reducer;

@@ -1,5 +1,4 @@
 // Sitemap generator utility
-// This can be used to generate a sitemap.xml file dynamically
 
 export interface SitemapUrl {
   loc: string;

@@ -1,18 +1,20 @@
 import { FaFilter, FaTimes, FaStar } from "react-icons/fa";
-import { Product, FilterState } from "../Shop";
+import type { FilterState } from "../Shop";
+import type { ShopProduct } from "../../../hooks/useProducts";
 
 interface ShopSidebarProps {
   filters: FilterState;
   onFilterChange: (filters: Partial<FilterState>) => void;
   onClearFilters: () => void;
-  products: Product[];
+  products: ShopProduct[];
 }
 
-function ShopSidebar({ filters, onFilterChange, products }: ShopSidebarProps) {
+function ShopSidebar({ filters, onFilterChange, onClearFilters, products }: ShopSidebarProps) {
   // Get unique categories and brands from products
-  const categories = Array.from(new Set(products.map(p => p.category)));
-  const brands = Array.from(new Set(products.map(p => p.brand)));
-  const maxPrice = Math.max(...products.map(p => p.price));
+  const categories = Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
+  const brands = Array.from(new Set(products.map((p) => p.brand))).filter(Boolean);
+  const priceValues = products.map((p) => (typeof p.price === "number" ? p.price : 0));
+  const maxPrice = priceValues.length ? Math.max(...priceValues) : 0;
 
   const hasActiveFilters = 
     filters.category || 
@@ -32,14 +34,7 @@ function ShopSidebar({ filters, onFilterChange, products }: ShopSidebarProps) {
         </h3>
         {hasActiveFilters && (
           <button
-            onClick={() => onFilterChange({
-              category: "",
-              subcategory: "",
-              brand: "",
-              priceRange: [0, undefined],
-              rating: 0,
-              inStock: false,
-            })}
+            onClick={onClearFilters}
             className="text-sm text-gray-500 hover:text-gray-700 cursor-pointer rounded-lg flex items-center space-x-1 px-2 py-1 hover:bg-gray-100 transition-colors"
             aria-label="Clear all filters"
           >

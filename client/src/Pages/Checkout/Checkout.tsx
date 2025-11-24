@@ -1,87 +1,32 @@
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { clearCartAsync } from "../../store/slices/cartSlice";
+import { useAppSelector } from "../../store/hooks";
 import { useNavigate } from "react-router-dom";
-import { FaCreditCard, FaLock, FaArrowLeft } from "react-icons/fa";
-import toast from "react-hot-toast";
+import { FaCreditCard, FaLock, FaArrowLeft, FaTicketAlt } from "react-icons/fa";
+import { useCheckout } from "../../hooks/useCheckout";
 
 function Checkout() {
-  const { items, totalItems, totalPrice } = useAppSelector((state) => state.cart);
-  const { user } = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
+  const { items, totalItems, totalPrice } = useAppSelector(
+    (state) => state.cart
+  );
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    zipCode: "",
-    country: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    cardName: "",
-  });
-
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  useEffect(() => {
-    if (items.length === 0) {
-      navigate("/shop");
-    }
-  }, [items.length, navigate]);
-
-  useEffect(() => {
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: user.email || "",
-      }));
-    }
-  }, [user]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
-    try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Clear cart after successful checkout
-      await dispatch(clearCartAsync()).unwrap();
-      toast.success("Order placed successfully!");
-      navigate("/profile");
-    } catch (error) {
-      console.error("Checkout error:", error);
-      const errorMessage =
-        typeof error === "string"
-          ? error
-          : error instanceof Error
-          ? error.message
-          : "Payment failed. Please try again.";
-      toast.error(errorMessage);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  const {
+    formData,
+    isProcessing,
+    couponCode,
+    couponDiscount,
+    isValidatingCoupon,
+    appliedCoupon,
+    finalTotal,
+    handleInputChange,
+    handleSubmit,
+    handleApplyCoupon,
+    handleRemoveCoupon,
+    setCouponCode,
+  } = useCheckout();
 
   if (items.length === 0) {
-    return null; // Will redirect to shop
+    return null; 
   }
 
   return (
@@ -100,7 +45,9 @@ function Checkout() {
             <FaArrowLeft className="mr-2" />
             Back to Shop
           </button>
-          <h1 className="text-3xl font-bold text-gray-900 stick-bold">Checkout</h1>
+          <h1 className="text-3xl font-bold text-gray-900 stick-bold">
+            Checkout
+          </h1>
           <p className="text-gray-600 stick-regular mt-2">
             Complete your order securely
           </p>
@@ -334,7 +281,7 @@ function Checkout() {
                 ) : (
                   <>
                     <FaLock className="mr-2" />
-                    Complete Order - ${totalPrice.toFixed(2)}
+                    Complete Order - ${finalTotal.toFixed(2)}
                   </>
                 )}
               </motion.button>
@@ -355,7 +302,10 @@ function Checkout() {
             {/* Order Items */}
             <div className="space-y-4 mb-6">
               {items.map((item) => (
-                <div key={item.cartItemId} className="flex items-center space-x-4">
+                <div
+                  key={item.cartItemId}
+                  className="flex items-center space-x-4"
+                >
                   <img
                     src={item.image}
                     alt={item.name}
@@ -400,10 +350,65 @@ function Checkout() {
                 <span>Tax</span>
                 <span>$0.00</span>
               </div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-sm stick-regular text-green-600">
+                  <span>{appliedCoupon.code} Discount</span>
+                  <span>- ${couponDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-lg font-semibold stick-bold border-t border-gray-200 pt-2">
                 <span>Total</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>${finalTotal.toFixed(2)}</span>
               </div>
+            </div>
+
+            {/* Coupon Section */}
+            <div className="mt-6 border border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
+              <div className="flex items-center gap-2 mb-3">
+                <FaTicketAlt className="text-gray-700" />
+                <p className="text-sm font-semibold text-gray-800 stick-bold">
+                  Apply Coupon
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="ENTER CODE"
+                  disabled={!!appliedCoupon}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black uppercase tracking-widest text-sm stick-regular disabled:bg-gray-100"
+                />
+                {appliedCoupon ? (
+                  <motion.button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="px-5 py-3 border border-gray-300 text-gray-700 rounded-lg cursor-pointer outline-none bg-white hover:bg-gray-100 font-semibold"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    aria-label="Remove coupon"
+                  >
+                    Remove
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={isValidatingCoupon}
+                    className="px-5 py-3 bg-black text-white rounded-lg cursor-pointer outline-none shadow hover:bg-gray-900 font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                    whileHover={{ scale: isValidatingCoupon ? 1 : 1.02 }}
+                    whileTap={{ scale: isValidatingCoupon ? 1 : 0.98 }}
+                    aria-label="Apply coupon"
+                  >
+                    {isValidatingCoupon ? "Validating..." : "Apply"}
+                  </motion.button>
+                )}
+              </div>
+              {appliedCoupon && (
+                <p className="mt-3 text-xs text-green-700 stick-regular">
+                  {appliedCoupon.description || "Coupon applied successfully."}
+                </p>
+              )}
             </div>
 
             {/* Security Notice */}

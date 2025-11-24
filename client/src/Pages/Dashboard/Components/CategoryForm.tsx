@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { FaTimes } from "react-icons/fa";
 import { Category } from "../types";
+import ImageUploader from "./ImageUploader/ImageUploader";
 
 interface CategoryFormProps {
   category: Category | null;
@@ -56,8 +57,18 @@ function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps) {
     setFormData((prev) => ({ ...prev, name, slug }));
   };
 
+  const handleImageChange = (urls: string[]) => {
+    setFormData((prev) => ({ ...prev, image: urls[0] || "" }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.image) {
+      toast.error("Please upload an image for the category");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -169,18 +180,14 @@ function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps) {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-zinc-900 mb-2">
-                  Image URL
-                </label>
-                <input
-                  type="url"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-zinc-300 rounded-xl outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-white"
-                />
-              </div>
+              <ImageUploader
+                label="Category Image *"
+                folder="categories"
+                accept="image/*"
+                values={formData.image ? [formData.image] : []}
+                onChange={handleImageChange}
+                emptyMessage="Upload an image to represent the category"
+              />
 
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">

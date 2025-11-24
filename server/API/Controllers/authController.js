@@ -2,8 +2,7 @@ import User from "../Models/User.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { updateLastLogin, sendTokenResponse } from "../Middleware/auth.js";
-import sendEmail from "../Utils/sendEmail.js";
-import { sendVerificationEmail } from "../Utils/emailService.js";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../Utils/emailService.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -70,7 +69,7 @@ export const login = async (req, res) => {
         message: "Please provide email and password",
       });
     }
-
+ 
     // Check for user (include password for comparison)
     const user = await User.findOne({ email }).select("+password");
 
@@ -80,7 +79,7 @@ export const login = async (req, res) => {
         message: "Invalid credentials",
       });
     }
-
+ 
     // Check if user is active
     if (!user.isActive) {
       return res.status(401).json({
@@ -471,30 +470,10 @@ export const forgotPassword = async (req, res) => {
     // Create reset URL
     const resetUrl = `${process.env.CLIENT_API_URL || "http://localhost:5173"}/new-password?token=${resetToken}&email=${encodeURIComponent(user.email)}`;
 
-    // Email message
-    const message = `
-      <h2>Password Reset Request</h2>
-      <p>You requested a password reset for your VEXO account.</p>
-      <p>Click the link below to reset your password:</p>
-      <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #000; color: #fff; text-decoration: none; border-radius: 5px; margin: 10px 0;">Reset Password</a>
-      <p>This link will expire in 10 minutes.</p>
-      <p>If you didn't request this, please ignore this email.</p>
-      <p>Best regards,<br>VEXO Team</p>
-    `;
+    // Send password reset email
+    const emailResult = await sendPasswordResetEmail(user.email, resetUrl);
 
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: "Password Reset Request - VEXO",
-        html: message,
-      });
-
-      res.status(200).json({
-        success: true,
-        message: "Password reset email sent successfully",
-      });
-    } catch (error) {
-      console.error("Email sending error:", error);
+    if (!emailResult.success) {
       // Reset token fields if email fails
       user.passwordResetToken = undefined;
       user.passwordResetExpires = undefined;
@@ -505,6 +484,11 @@ export const forgotPassword = async (req, res) => {
         message: "Email could not be sent. Please try again later.",
       });
     }
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset email sent successfully",
+    });
   } catch (error) {
     console.error("Forgot password error:", error);
     res.status(500).json({

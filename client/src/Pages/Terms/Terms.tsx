@@ -2,10 +2,18 @@ import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaFileContract, FaGavel, FaShieldAlt } from "react-icons/fa";
 import SEO from "../../Components/SEO/SEO";
+import { useEffect } from "react";
 
 function Terms() {
   const location = useLocation();
   const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
+  // On first amount make sure it scroll smoothly to the top of the page
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

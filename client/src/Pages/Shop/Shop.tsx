@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
@@ -9,21 +9,7 @@ import ShopSidebar from "./Components/ShopSidebar";
 import ProductGrid from "./Components/ProductGrid";
 import { FaFilter, FaTimes } from "react-icons/fa";
 import SEO from "../../Components/SEO/SEO";
-
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  brand: string;
-  rating: number;
-  reviews: number;
-  sizes: string[];
-  colors: string[];
-  description: string;
-  inStock: boolean;
-}
+import { useProducts, ShopProduct } from "../../hooks/useProducts";
 
 export interface FilterState {
   category: string;
@@ -35,101 +21,14 @@ export interface FilterState {
   search: string;
 }
 
-// Mock products data - replace with actual API call
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    name: "Premium Athletic Shoes",
-    price: 129.99,
-    image: "/src/assets/1.avif",
-    category: "Shoes",
-    brand: "Nike",
-    rating: 4.5,
-    reviews: 128,
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "White", "Red"],
-    description: "High-performance athletic shoes for all sports activities.",
-    inStock: true,
-  },
-  {
-    id: "2",
-    name: "Comfortable T-Shirt",
-    price: 29.99,
-    image: "/src/assets/2.avif",
-    category: "Clothing",
-    brand: "Adidas",
-    rating: 4.2,
-    reviews: 89,
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Blue", "Green", "Gray"],
-    description: "Soft and comfortable cotton t-shirt for everyday wear.",
-    inStock: true,
-  },
-  {
-    id: "3",
-    name: "Wireless Headphones",
-    price: 199.99,
-    image: "/src/assets/3.avif",
-    category: "Electronics",
-    brand: "Sony",
-    rating: 4.8,
-    reviews: 256,
-    sizes: ["One Size"],
-    colors: ["Black", "White"],
-    description: "Premium wireless headphones with noise cancellation.",
-    inStock: true,
-  },
-  {
-    id: "4",
-    name: "Smart Watch",
-    price: 299.99,
-    image: "/src/assets/4.avif",
-    category: "Electronics",
-    brand: "Apple",
-    rating: 4.6,
-    reviews: 342,
-    sizes: ["S", "M", "L"],
-    colors: ["Black", "Silver", "Gold"],
-    description: "Advanced smartwatch with health monitoring features.",
-    inStock: false,
-  },
-  {
-    id: "5",
-    name: "Running Shorts",
-    price: 39.99,
-    image: "/src/assets/5.avif",
-    category: "Clothing",
-    brand: "Nike",
-    rating: 4.3,
-    reviews: 67,
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "Navy", "Red"],
-    description: "Lightweight running shorts for optimal performance.",
-    inStock: true,
-  },
-  {
-    id: "6",
-    name: "Gaming Mouse",
-    price: 79.99,
-    image: "/src/assets/6.avif",
-    category: "Electronics",
-    brand: "Razer",
-    rating: 4.7,
-    reviews: 189,
-    sizes: ["One Size"],
-    colors: ["Black", "Green"],
-    description: "High-precision gaming mouse with RGB lighting.",
-    inStock: true,
-  },
-];
-
 function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
-  const [products] = useState<Product[]>(mockProducts);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(mockProducts);
+  const [filteredProducts, setFilteredProducts] = useState<ShopProduct[]>([]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const baseUrl = import.meta.env.VITE_SITE_URL || "https://vexo.com";
+  const { products, error, isLoading } = useProducts();
+  const dataError = error || null;
   
   // Get category from URL params for SEO
   const category = searchParams.get("category") || "";
@@ -163,9 +62,16 @@ function Shop() {
     inStock: searchParams.get("inStock") === "true",
     search: searchParams.get("search") || "",
   });
-  const [isLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { isAuthenticated } = useAppSelector((state) => state.user);
+
+  // On first amount make sure it scroll smoothly to the top of the page
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
 
   // Update URL params when filters change
   useEffect(() => {
@@ -237,7 +143,7 @@ function Shop() {
     setFilteredProducts(filtered);
   }, [products, filters]);
 
-  const handleAddToWishlist = (product: Product) => {
+  const handleAddToWishlist = (product: ShopProduct) => {
     if (!isAuthenticated) {
       toast.error("Please log in to add items to your wishlist");
       return;
@@ -292,6 +198,12 @@ function Shop() {
           searchValue={filters.search}
           onSearchChange={(search) => handleFilterChange({ search })}
         />
+
+        {dataError && (
+          <div className="mt-4 mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {dataError}
+          </div>
+        )}
         
         {/* Mobile Filter Toggle Button */}
         <div className="lg:hidden mb-4">

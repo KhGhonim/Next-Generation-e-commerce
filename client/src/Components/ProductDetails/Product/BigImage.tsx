@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { productImages } from "../../../Context/Context";
 import { BiChevronLeft, BiChevronRight } from "react-icons/bi";
 import { CiMaximize2 } from "react-icons/ci";
 import { BigImageProps } from "../../../Types/ProjectTypes";
@@ -9,12 +8,14 @@ function BigImage({
   handlePrevImage,
   handleNextImage,
   setIsFixed,
-}: BigImageProps) {
+  images,
+  title,
+}: BigImageProps & { images: string[]; title: string }) {
   return (
     <div className="aspect-square relative rounded-3xl overflow-hidden bg-neutral-200">
       <img
-        src={productImages[currentImageIndex]}
-        alt="Product"
+        src={images[currentImageIndex]}
+        alt={`${title} preview`}
         className="w-full h-full object-cover"
       />
       <motion.button
