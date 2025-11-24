@@ -109,14 +109,14 @@ function CouponForm({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4 py-4 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-zinc-200 overflow-hidden"
+          className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-zinc-200 overflow-hidden max-h-[90vh] flex flex-col my-auto"
         >
-          <div className="px-6 py-5 border-b border-zinc-200 bg-gradient-to-r from-zinc-50 to-white flex items-center justify-between">
+          <div className="px-6 py-5 border-b border-zinc-200 bg-gradient-to-r from-zinc-50 to-white flex items-center justify-between flex-shrink-0">
             <div>
               <h2 className="text-2xl font-bold text-zinc-900">
                 {coupon ? "Edit Coupon" : "Create Coupon"}
@@ -136,7 +136,7 @@ function CouponForm({
             </motion.button>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-6 bg-white">
+          <form onSubmit={handleSubmit} className="p-6 space-y-6 bg-white overflow-y-auto flex-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-zinc-800 mb-2">

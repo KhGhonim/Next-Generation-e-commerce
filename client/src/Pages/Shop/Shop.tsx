@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useDeferredValue } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
@@ -50,6 +50,10 @@ function Shop() {
     : search 
     ? `Search results for "${search}" at VEXO. Find exactly what you're looking for from our wide selection of products.`
     : "Shop our complete collection of products at VEXO. Browse fashion, electronics, accessories and more with the best prices and fast shipping.";
+  // Separate search input value from filter state for deferred updates
+  const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
+  const deferredSearch = useDeferredValue(searchInput);
+
   const [filters, setFilters] = useState<FilterState>({
     category: searchParams.get("category") || "",
     subcategory: searchParams.get("subcategory") || "",
@@ -72,6 +76,17 @@ function Shop() {
       behavior: "smooth",
     });
   }, []);
+
+  // Sync search input with URL params when URL changes (e.g., browser back/forward)
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+    setSearchInput((prev) => (prev !== urlSearch ? urlSearch : prev));
+  }, [searchParams]);
+
+  // Update filters when deferred search value changes
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, search: deferredSearch }));
+  }, [deferredSearch]);
 
   // Update URL params when filters change
   useEffect(() => {
@@ -170,7 +185,12 @@ function Shop() {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
+  const handleSearchChange = (search: string) => {
+    setSearchInput(search);
+  };
+
   const clearFilters = () => {
+    setSearchInput("");
     setFilters({
       category: "",
       subcategory: "",
@@ -195,8 +215,8 @@ function Shop() {
       <div className="px-4 sm:px-6 lg:px-8 py-8 pt-24 lg:pt-32">
         <ShopHeader 
           totalProducts={filteredProducts.length}
-          searchValue={filters.search}
-          onSearchChange={(search) => handleFilterChange({ search })}
+          searchValue={searchInput}
+          onSearchChange={handleSearchChange}
         />
 
         {dataError && (

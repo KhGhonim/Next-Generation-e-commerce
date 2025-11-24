@@ -96,7 +96,8 @@ export interface SmallImagesProps {
 export interface MegnifierProps{
   setIsFixed: (value: boolean) => void;
   IsFixed: boolean;
-  currentImageIndex: number
+  currentImageIndex: number;
+  images: string[];
 }
 
 export interface SEOProps {

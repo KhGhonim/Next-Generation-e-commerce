@@ -65,6 +65,7 @@ function PhoneHeader({ user }: PhoneHeaderProps) {
           src="/VEXO.svg"
           alt="website logo"
           className="w-56 h-full object-cover"
+          
         />
       </motion.div>
       {/* Bottom Navigation Bar */}

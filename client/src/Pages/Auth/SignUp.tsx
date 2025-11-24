@@ -76,6 +76,7 @@ function SignUp() {
               src="/VEXO.svg"
               className="mx-auto h-16 w-auto"
               alt="VEXO Logo"
+              loading="lazy"
             />
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900 stick-bold">

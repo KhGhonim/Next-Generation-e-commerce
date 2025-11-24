@@ -92,6 +92,7 @@ function Performance() {
               src={Performance2}
               className="w-full h-full object-cover rounded-4xl"
               alt="Performance 2"
+               loading="lazy"
             />
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/12 w-full h-full">
               <h1 className="stick-bold text-base lg:text-5xl mb-5 w-4/6 px-5">

@@ -81,6 +81,7 @@ function Wishlist() {
                     src={item.image}
                     alt={item.name}
                     className="w-full h-48 object-cover"
+                    loading="lazy"
                   />
                   <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs stick-bold">
                     {item.brand}

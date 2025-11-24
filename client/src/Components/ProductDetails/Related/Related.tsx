@@ -70,6 +70,7 @@ function Related({ currentProductId, category }: RelatedProps) {
               <motion.div key={product._id} className="group" whileHover={{ y: -5 }}>
                 <div className="relative aspect-square mb-4 rounded-2xl overflow-hidden">
                   <img
+                    loading="lazy"
                     src={
                       product.images && product.images.length
                         ? product.images[0]

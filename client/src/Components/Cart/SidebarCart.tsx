@@ -1,10 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { FaTimes, FaPlus, FaMinus, FaTrash } from "react-icons/fa";
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { removeFromCartAsync, updateQuantityAsync } from "../../store/slices/cartSlice";
-import { useNavigate } from "react-router-dom";
-import { CartItem } from "../../store/slices/cartSlice";
-import toast from "react-hot-toast";
+import { useSidebarCart } from "../../hooks/useSidebarCart";
 
 interface SidebarCartProps {
   isOpen: boolean;
@@ -12,52 +8,18 @@ interface SidebarCartProps {
 }
 
 function SidebarCart({ isOpen, onClose }: SidebarCartProps) {
-  const { items, totalItems, totalPrice } = useAppSelector((state) => state.cart);
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-
-  const handleQuantityChange = async (item: CartItem, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      await handleRemoveItem(item.cartItemId);
-    } else {
-      try {
-        await dispatch(updateQuantityAsync({ cartItemId: item.cartItemId, quantity: newQuantity })).unwrap();
-      } catch (error) {
-        const errorMessage =
-          typeof error === "string"
-            ? error
-            : error instanceof Error
-            ? error.message
-            : "Failed to update quantity";
-        toast.error(errorMessage);
-      }
-    }
-  };
-
-  const handleRemoveItem = async (cartItemId: string) => {
-    try {
-      await dispatch(removeFromCartAsync(cartItemId)).unwrap();
-      toast.success("Item removed from cart");
-    } catch (error) {
-      const errorMessage =
-        typeof error === "string"
-          ? error
-          : error instanceof Error
-          ? error.message
-          : "Failed to remove item";
-      toast.error(errorMessage);
-    }
-  };
-
-  const handleCheckout = () => {
-    onClose();
-    navigate("/checkout");
-  };
-
-  const handleContinueShopping = () => {
-    onClose();
-    navigate("/shop");
-  };
+  const {
+    items,
+    totalItems,
+    totalPrice,
+    isItemUpdating,
+    isItemDeleting,
+    isItemLoading,
+    handleQuantityChange,
+    handleRemoveItem,
+    handleCheckout,
+    handleContinueShopping,
+  } = useSidebarCart(onClose);
 
   return (
     <AnimatePresence>
@@ -135,6 +97,7 @@ function SidebarCart({ isOpen, onClose }: SidebarCartProps) {
                           src={item.image}
                           alt={item.name}
                           className="w-16 h-16 object-cover rounded-lg"
+                           loading="lazy"
                         />
                       </div>
 
@@ -160,33 +123,66 @@ function SidebarCart({ isOpen, onClose }: SidebarCartProps) {
 
                       {/* Quantity Controls */}
                       <div className="flex items-center space-x-3">
-                        <button
+                        <motion.button
                           onClick={() => handleQuantityChange(item, item.quantity - 1)}
-                          className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors border border-gray-200 hover:border-gray-300"
+                          disabled={isItemLoading(item.cartItemId)}
+                          className={`p-2 rounded-full transition-colors border ${
+                            isItemLoading(item.cartItemId)
+                              ? "opacity-50 cursor-not-allowed border-gray-200"
+                              : "hover:bg-gray-100 cursor-pointer border-gray-200 hover:border-gray-300"
+                          }`}
                           aria-label="Decrease quantity"
+                          whileHover={isItemLoading(item.cartItemId) ? {} : { scale: 1.1 }}
+                          whileTap={isItemLoading(item.cartItemId) ? {} : { scale: 0.9 }}
                         >
-                          <FaMinus size={14} className="text-gray-600" />
-                        </button>
+                          {isItemUpdating(item.cartItemId) ? (
+                            <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-gray-600 border-t-transparent" />
+                          ) : (
+                            <FaMinus size={14} className="text-gray-600" />
+                          )}
+                        </motion.button>
                         <span className="text-sm font-medium text-gray-900 stick-bold min-w-[24px] text-center">
                           {item.quantity}
                         </span>
-                        <button
+                        <motion.button
                           onClick={() => handleQuantityChange(item, item.quantity + 1)}
-                          className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors border border-gray-200 hover:border-gray-300"
+                          disabled={isItemLoading(item.cartItemId)}
+                          className={`p-2 rounded-full transition-colors border ${
+                            isItemLoading(item.cartItemId)
+                              ? "opacity-50 cursor-not-allowed border-gray-200"
+                              : "hover:bg-gray-100 cursor-pointer border-gray-200 hover:border-gray-300"
+                          }`}
                           aria-label="Increase quantity"
+                          whileHover={isItemLoading(item.cartItemId) ? {} : { scale: 1.1 }}
+                          whileTap={isItemLoading(item.cartItemId) ? {} : { scale: 0.9 }}
                         >
-                          <FaPlus size={14} className="text-gray-600" />
-                        </button>
+                          {isItemUpdating(item.cartItemId) ? (
+                            <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-gray-600 border-t-transparent" />
+                          ) : (
+                            <FaPlus size={14} className="text-gray-600" />
+                          )}
+                        </motion.button>
                       </div>
 
                       {/* Remove Button */}
-                      <button
+                      <motion.button
                         onClick={() => handleRemoveItem(item.cartItemId)}
-                        className="p-2 hover:bg-red-50 text-red-500 hover:text-red-700 rounded cursor-pointer transition-colors"
+                        disabled={isItemLoading(item.cartItemId)}
+                        className={`p-2 rounded transition-colors ${
+                          isItemDeleting(item.cartItemId)
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-red-50 cursor-pointer"
+                        } ${isItemDeleting(item.cartItemId) ? "text-red-400" : "text-red-500 hover:text-red-700"}`}
                         aria-label="Remove item"
+                        whileHover={isItemLoading(item.cartItemId) ? {} : { scale: 1.1 }}
+                        whileTap={isItemLoading(item.cartItemId) ? {} : { scale: 0.9 }}
                       >
-                        <FaTrash size={14} />
-                      </button>
+                        {isItemDeleting(item.cartItemId) ? (
+                          <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-red-500 border-t-transparent" />
+                        ) : (
+                          <FaTrash size={14} />
+                        )}
+                      </motion.button>
                     </motion.div>
                   ))}
                 </div>

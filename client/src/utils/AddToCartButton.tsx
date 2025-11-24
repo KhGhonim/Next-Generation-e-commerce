@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addToCartAsync, CartItem } from "../store/slices/cartSlice";
@@ -26,9 +27,14 @@ function AddToCartButton({
   variant = "default",
 }: AddToCartButtonProps) {
   const dispatch = useAppDispatch();
-  const { isLoading } = useAppSelector((state) => state.cart);
+  const { isLoading: cartIsLoading } = useAppSelector((state) => state.cart);
+  const [isAdding, setIsAdding] = useState(false);
+
+  const isLoading = cartIsLoading || isAdding;
 
   const handleAddToCart = async () => {
+    if (isLoading) return;
+
     // Prepare cart item
     const cartItem: Omit<CartItem, "cartItemId"> = {
       id: product.id,
@@ -40,6 +46,7 @@ function AddToCartButton({
       color: product.color,
     };
 
+    setIsAdding(true);
     try {
       await dispatch(addToCartAsync(cartItem)).unwrap();
       toast.success(`${product.name} added to cart!`);
@@ -51,6 +58,8 @@ function AddToCartButton({
           ? error.message
           : "Failed to add item to cart";
       toast.error(errorMessage);
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -62,28 +71,40 @@ function AddToCartButton({
     </>
   );
 
+  // Loading content
+  const loadingContent = (
+    <>
+      <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+      <span className="text-sm">Adding...</span>
+    </>
+  );
+
   // Base button classes
-  const baseClasses = "cursor-pointer rounded-lg outline-none";
+  const baseClasses = "rounded-lg outline-none transition-all";
   const variantClasses = {
     default:
-      "bg-black text-white px-4 py-2 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2",
-    icon: "bg-black text-white p-2 hover:bg-gray-800 transition-colors flex items-center justify-center",
-    text: "text-black hover:text-gray-600 transition-colors underline",
+      "bg-black text-white px-4 py-2 hover:bg-gray-800 flex items-center justify-center gap-2",
+    icon: "bg-black text-white p-2 hover:bg-gray-800 flex items-center justify-center",
+    text: "text-black hover:text-gray-600 underline",
   };
 
-  const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${className}`;
+  const disabledClasses = isLoading
+    ? "opacity-60 cursor-not-allowed"
+    : "cursor-pointer";
+
+  const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${disabledClasses} ${className}`;
 
   return (
     <motion.button
       onClick={handleAddToCart}
       disabled={isLoading}
       className={buttonClasses}
-      title={`Add ${product.name} to cart`}
-      aria-label={`Add ${product.name} to cart`}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      title={isLoading ? "Adding to cart..." : `Add ${product.name} to cart`}
+      aria-label={isLoading ? "Adding to cart..." : `Add ${product.name} to cart`}
+      whileHover={isLoading ? {} : { scale: 1.05 }}
+      whileTap={isLoading ? {} : { scale: 0.95 }}
     >
-      {defaultContent}
+      {isLoading ? loadingContent : defaultContent}
     </motion.button>
   );
 }

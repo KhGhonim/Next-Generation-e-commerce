@@ -72,6 +72,7 @@ function VerifyToken() {
                 src="/VEXO.svg"
                 className="mx-auto h-16 w-auto"
                 alt="VEXO Logo"
+                loading="lazy"
               />
             </Link>
           </div>

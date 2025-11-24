@@ -22,6 +22,7 @@ function SmallImages({
             <img
               src={img}
               alt={`${title} thumbnail ${index + 1}`}
+              loading="lazy"
               className="w-full h-full object-cover"
             />
         </motion.button>

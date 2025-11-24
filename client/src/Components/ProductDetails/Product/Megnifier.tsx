@@ -1,22 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { MegnifierProps } from "../../../Types/ProjectTypes";
-import { productImages } from "../../../Context/Context";
 
-function Megnifier({ IsFixed, setIsFixed, currentImageIndex }: MegnifierProps) {
+function Megnifier({ IsFixed, setIsFixed, currentImageIndex, images }: MegnifierProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const handleCloseOutside = (event: MouseEvent) => {
-    if (ref.current && !ref.current.contains(event.target as Node)) {
-      setIsFixed(false);
-    }
-  };
 
   useEffect(() => {
+    const handleCloseOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setIsFixed(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleCloseOutside);
 
     return () => {
       document.removeEventListener("mousedown", handleCloseOutside);
     };
-  }, []);
+  }, [setIsFixed]);
 
   const [position, setPosition] = useState({ x: 0, y: 0, visible: false });
   const imgRef = useRef<HTMLImageElement>(null);
@@ -51,10 +51,10 @@ function Megnifier({ IsFixed, setIsFixed, currentImageIndex }: MegnifierProps) {
             ref={ref}
           >
             <img
-              ref={imgRef}
               loading="lazy"
+              ref={imgRef}
               className="w-full h-full object-cover rounded-4xl"
-              src={productImages[currentImageIndex]}
+              src={images[currentImageIndex]}
               alt="Product"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
@@ -65,7 +65,7 @@ function Megnifier({ IsFixed, setIsFixed, currentImageIndex }: MegnifierProps) {
             <div
               className="hidden lg:flex absolute top-1/2 left-1/5 transform -translate-x-1/2 -translate-y-1/2 w-96 h-[28rem] border-2 border-white bg-no-repeat rounded-lg"
               style={{
-                backgroundImage: `url(${productImages[currentImageIndex]})`,
+                backgroundImage: `url(${images[currentImageIndex]})`,
                 backgroundSize: `${3 * 100}%`,
                 backgroundPosition: `${position.x}% ${position.y}%`,
               }}

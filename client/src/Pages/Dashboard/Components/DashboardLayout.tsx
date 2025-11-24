@@ -130,7 +130,7 @@ function DashboardLayout() {
             <NavLink
               key={item.path}
               to={item.path}
-              end={item.path === "/dashboard"}
+              end={item.path === "/dashboard" || item.path === "/dashboard/products"}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer outline-none relative ${

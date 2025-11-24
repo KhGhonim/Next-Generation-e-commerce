@@ -26,6 +26,7 @@ function ProductList({ products, onEdit, onDelete }: ProductListProps) {
                 <img
                   src={product.images[0]}
                   alt={product.name}
+                   loading="lazy"
                   className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                 />
               ) : (
@@ -108,6 +109,7 @@ function ProductList({ products, onEdit, onDelete }: ProductListProps) {
                       <img
                         src={product.images[0]}
                         alt={product.name}
+                         loading="lazy"
                         className="w-12 h-12 lg:w-16 lg:h-16 object-cover rounded-lg"
                       />
                     ) : (

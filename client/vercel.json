@@ -1,0 +1,167 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/shop",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/product/:id",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/profile",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/wishlist",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/returns",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/terms",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/checkout",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/privacy",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/cookies",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/help",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/contact",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/size-guide",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/shipping",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/signup",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/verify-token",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/forgot-password",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/new-password",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/products",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/products/photos",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/analytics",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/sales-team",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/payments",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/categories",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/coupons",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/users",
+      "dest": "/index.html"
+    }
+  ]
+}
+

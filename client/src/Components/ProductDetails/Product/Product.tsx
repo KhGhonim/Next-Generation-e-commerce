@@ -92,6 +92,7 @@ function Product({ product }: ProductComponentProps) {
         setIsFixed={setIsFixed}
         IsFixed={IsFixed}
         currentImageIndex={currentImageIndex}
+        images={gallery}
       />
     </div>
   );

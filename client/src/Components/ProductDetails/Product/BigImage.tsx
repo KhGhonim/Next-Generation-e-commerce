@@ -14,6 +14,7 @@ function BigImage({
   return (
     <div className="aspect-square relative rounded-3xl overflow-hidden bg-neutral-200">
       <img
+        loading="lazy"
         src={images[currentImageIndex]}
         alt={`${title} preview`}
         className="w-full h-full object-cover"
