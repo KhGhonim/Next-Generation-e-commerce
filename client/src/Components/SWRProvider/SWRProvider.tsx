@@ -47,7 +47,8 @@ const SWRProvider = ({ children }: SWRProviderProps) => {
         },
 
         // Custom retry logic with jitter
-        onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+        
+        onErrorRetry: (error, _key, config, revalidate, { retryCount }) => {
           // Don't retry on authentication errors or rate limit errors
           if (
             error?.message?.includes("Access denied") ||
